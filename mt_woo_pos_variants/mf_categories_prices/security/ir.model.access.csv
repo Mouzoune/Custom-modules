@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_order_line_category_price,access.order.line.category.price,model_order_line_category_price,,1,1,1,1
