@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_woocomm_export_product_stock_form" model="ir.ui.view">
+        <field name="name">woocomm.product.stock.quant.form.view</field>
+        <field name="model">woocomm.product.stock.quant.exp</field>
+        <field name="arch" type="xml">
+            <form string="Select Instance">
+                <sheet>
+
+                    <div>
+                        <p colspan="2" class="alert alert-warning" role="alert">
+                            <u>
+                                <h3 style="font-weight:bold;color:#7d5a29">Note :</h3>
+                            </u>
+                            <b>
+                                Are you sure to export products stocks to this instance?
+                            </b>
+                        </p>
+                    </div>
+
+                    <group>
+                        <field name="woocomm_instance_id" required="1" options="{'no_create':True,'no_create_edit':True}"/>
+                    </group>
+                    <footer>
+                        <button name="product_stock_quantity_exp" string="Export Product Stock Quantity" type="object"
+                                class="oe_highlight"/>
+                        <button string="Cancel" class="oe_highlight" special="cancel"/>
+                    </footer>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wizard_woocomm_product_stock" model="ir.actions.act_window">
+        <field name="name">WooCommerce - Export Product Stocks</field>
+        <field name="res_model">woocomm.product.stock.quant.exp</field>
+        <field name="binding_model_id" ref="model_product_template"/>
+        <field name="binding_view_types">form,list</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="mt_odoo_woocommerce_connector.view_woocomm_export_product_stock_form"/>
+    </record>
+
+</odoo>

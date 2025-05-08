@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_woocomm_order_actions_wizard_form" model="ir.ui.view">
+        <field name="name">woocomm.order.actions.wizard.form.view</field>
+        <field name="model">woocomm.order.actions.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Select Instance">
+                <sheet>
+
+                    <div>
+                        <p colspan="2" class="alert alert-warning" role="alert">
+                            <u>
+                                <h3 style="font-weight:bold;color:#7d5a29">Note :</h3>
+                            </u>
+                            <b>
+                                Are you sure to perform actions in this woocommerce instance?
+                            </b>
+                        </p>
+                    </div>
+
+                    <group>
+                        <field name="woocomm_instance_id" required="1" options="{'no_create':True,'no_create_edit':True}"/>
+                        <field name="order_actions" widget="radio" options="{'horizontal': true}" invisible="order_action_status != 'default'"/>
+                        <field name="order_actions_new_order" widget="radio" options="{'horizontal': true}" invisible="order_action_status != 'new_order'"/>
+                        <field name="order_actions_order_payment" widget="radio" options="{'horizontal': true}" invisible="order_action_status != 'order_payment'"/>
+                        <field name="order_actions_info_update" widget="radio" options="{'horizontal': true}" invisible="order_action_status != 'info_update'"/>
+                        <field name="order_actions_payment_complete" widget="radio" options="{'horizontal': true}" invisible="order_action_status != 'payment_complete'"/>
+                        <field name="order_actions_order_complete" widget="radio" options="{'horizontal': true}" invisible="order_action_status != 'order_complete'"/>
+                        <field name="order_action_status" invisible="1"/>
+                    </group>
+
+                    <footer>
+                        <button name="woocomm_action" string="Generate" type="object"
+                                class="oe_highlight"/>
+                        <button string="Cancel" class="oe_highlight" special="cancel"/>
+                    </footer>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_woocomm_order_actions_wizard" model="ir.actions.act_window">
+        <field name="name">WooCommerce Actions</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">woocomm.order.actions.wizard</field>
+        <field name="view_id" ref="view_woocomm_order_actions_wizard_form"/>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

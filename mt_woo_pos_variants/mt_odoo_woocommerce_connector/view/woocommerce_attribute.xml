@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="product_attribute_tree_inherit_view_woocomm" model="ir.ui.view">
+        <field name="name">product.attribute.inherit.tree.view</field>
+        <field name="model">product.attribute</field>
+        <field name="inherit_id" ref="product.attribute_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="js_class">woocomm_import_product_attribute_button</attribute>
+            </xpath>
+            <xpath expr="//field[@name='create_variant']" position="after">
+                <field name="wooc_id" readonly="1"/>
+                <field name="woocomm_instance_id" readonly="1"/>
+                <field name="woocomm_attr_slug"/>
+                <field name="is_woocomm" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_attribute_form_inherit_view_woocomm" model="ir.ui.view">
+        <field name="name">product.attribute.inherit.form.view</field>
+        <field name="model">product.attribute</field>
+        <field name="inherit_id" ref="product.product_attribute_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='create_variant']" position="after">
+                <field name="wooc_id" readonly="1"/>
+                <field name="woocomm_instance_id" readonly="1"/>
+                <field name="woocomm_attr_slug"/>
+                <field name="is_woocomm" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_attribute_search_inherit_view_woocomm" model="ir.ui.view">
+        <field name="name">view.product.attribute.search.inherit</field>
+        <field name="model">product.attribute</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <filter string="Woo Commerce Synced Attributes" name="imported_woocomm_attributes"
+                        domain="[('is_woocomm', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_export_product_attribute_woocomm" model="ir.actions.server">
+        <field name="name">Export Product Attributes</field>
+        <field name="model_id" ref="model_product_attribute"/>
+        <field name="binding_model_id" ref="model_product_attribute"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+            if records:
+                action = records.action_export_product_attribute()
+        </field>
+    </record>
+
+    <record id="product_attribute_terms_form_view_woocomm" model="ir.ui.view">
+        <field name="name">WooCommerce Attribute Terms</field>
+        <field name="model">product.attribute.value</field>
+        <field name="arch" type="xml">
+            <form string="Woo Commerce Attribute Term">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="wooc_slug" readonly="1"/>
+                            <field name="wooc_id" string="WooCommerce ID" readonly="1"/>
+                            <field name="is_woocomm" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="woocomm_attribute_id"/>
+                            <field name="woocomm_instance_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="wooc_description" string="Description"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="product_attribute_terms_tree_view_woocomm" model="ir.ui.view">
+        <field name="name">WooCommerce Attribute</field>
+        <field name="model">product.attribute.value</field>
+        <field name="arch" type="xml">
+            <tree js_class="woocomm_import_product_attribute_value_button">
+                <field name="name"/>
+                <field name="woocomm_attribute_id"/>
+                <field name="wooc_id" string="WooCommerce ID" readonly="1"/>
+                <field name="woocomm_instance_id" readonly="1"/>
+                <field name="is_woocomm" readonly="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_product_attribute_value_search_view" model="ir.ui.view">
+        <field name="name">view.product.attribute.value.search.view</field>
+        <field name="model">product.attribute.value</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <filter string="Woo Synced Attribute Values" name="imported_woocomm_attribute_values"
+                        domain="[('is_woocomm', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_product_attribute_terms_woocomm" model="ir.actions.act_window">
+        <field name="name">Product Attribute Values</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.attribute.value</field>
+        <field name="view_id" ref="mt_odoo_woocommerce_connector.product_attribute_terms_tree_view_woocomm"/>
+        <field name="context">{'search_default_imported_woocomm_attribute_values': 1}</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

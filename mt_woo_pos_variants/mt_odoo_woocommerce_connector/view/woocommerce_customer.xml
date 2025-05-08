@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_customer_form_woocomm_inherit" model="ir.ui.view">
+        <field name="name">woocomm.res.partner.form.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='website']" position="after">
+                <field name="woocomm_instance_id" readonly="1"/>
+                <field name="wooc_user_id" readonly="0"/>
+                <field name="is_exported" readonly="0"/>
+            </xpath>
+            <field name="street" position="attributes">
+                <attribute name="required">True</attribute>
+            </field>
+            <field name="city" position="attributes">
+                <attribute name="required">True</attribute>
+            </field>
+            <field name="zip" position="attributes">
+                <attribute name="required">True</attribute>
+            </field>
+<!--            <field name="email" position="attributes">-->
+<!--                <attribute name="required">True</attribute>-->
+<!--            </field>-->
+            <field name="phone" position="attributes">
+                <attribute name="required">not child_ids</attribute>
+            </field>
+            <field name="child_ids" position="attributes">
+                <attribute name="context">{'default_email': email}</attribute>
+            </field>
+
+        </field>
+    </record>
+
+    <record id="view_cutomer_tree_woocomm_inherit" model="ir.ui.view">
+        <field name="name">woocomm.res.partner.tree.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="js_class">woocomm_import_customer_button</attribute>
+            </xpath>
+            <xpath expr="//field[@name='display_name']" position="after">
+                <field name="woocomm_instance_id" readonly="1"/>
+                <field name="wooc_user_id" readonly="1"/>
+                <field name="is_exported" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_cutomer_kanban_woocomm_inherit" model="ir.ui.view">
+        <field name="name">woocomm.res.partner.kanban.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.res_partner_kanban_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="attributes">
+                <attribute name="js_class">woocomm_import_customer_k_button</attribute>
+            </xpath>
+        </field>
+    </record>    
+
+    <record id="view_customer_search_woocomm_inherit" model="ir.ui.view">
+        <field name="name">woocomm.res.partner.filter.search.view.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <search>
+                <filter string="WooCommerce Synced Customers" name="woocomm_imported_customers"
+                        domain="[('is_exported', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_woocomm_res_partner" model="ir.actions.act_window">
+        <field name="name">WooCommerce Contacts</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_id" ref="base.view_partner_tree"/>
+        <field name="context">{'search_default_woocomm_imported_customers': 1}</field>
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
+
+</odoo>
