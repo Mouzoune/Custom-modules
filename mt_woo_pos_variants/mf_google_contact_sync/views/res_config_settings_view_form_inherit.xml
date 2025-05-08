@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record model="ir.ui.view" id="res_config_settings_view_form_inherit">
+        <field name="name">res.config.settings.view.form.inherit</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="100"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+<!--                <xpath expr="//form" position="inside">-->
+            <div id="contacts_settings" position='inside'>
+
+<!--            <xpath expr="//div[hasclass('settings')]" position="inside">-->
+                <div class="app_settings_block" data-string="Google contacts" string="Google Contacts" data-key="Google contacts">
+                    <h2>Google Contacts</h2>
+                    <div class="col-12 col-lg-12 o_setting_box">
+                        <div class="row mt16 o_settings_container">
+                            <div class="col-6 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <label for="mf_google_contact_credentials"/>
+                                    <div class="text-muted">
+                                        Json file OAuth 2.0 (Industry-standard protocol for authorization)
+                                    </div>
+                                    <field name="mf_google_contact_credentials" style="width: 600px;"/>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane"/>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+
+                </div>
+<!--            </xpath>-->
+        </field>
+    </record>
+</odoo>
