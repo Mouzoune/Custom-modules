@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_delivery_carrier_tree_woocomm_inherit" model="ir.ui.view">
+        <field name="name">woocomm.resdelivery.carrier.inherit</field>
+        <field name="model">delivery.carrier</field>
+        <field name="inherit_id" ref="delivery.view_delivery_carrier_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="js_class">woocomm_import_customer_button</attribute>
+            </xpath>
+            <xpath expr="//field[@name='delivery_type']" position="after">
+                <field name="woocomm_method_id" readonly="1"/>
+                <field name="woocomm_instance_id" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+    </odoo>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="WooCommImportList.Buttons" t-inherit="web.ListView.Buttons" t-inherit-mode="primary" owl="1">
+        <xpath expr="//div[hasclass('o_list_buttons')]" position="after">
+            <t t-if="props.resModel == 'product.template'">
+                <button type="button" class="btn btn-info"
+                        style="margin-left: 5px;" t-on-click="onClickWooCommProductImport">
+                    Import from WooCommerce
+                </button>
+                    <button type="button" class="btn btn-info"
+                            style="margin-left: 5px;" t-on-click="onClickGetProductsMostSold">
+                    Plus vendu
+                </button>
+            </t>
+
+            <button type="button" t-if='props.resModel == "sale.order"' class="btn btn-warning"
+                    style="margin-left: 5px;" t-on-click="onClickWooCommSaleOrderImport">
+                Import Orders from WooCommerce
+            </button>
+
+            <button type="button" t-if='props.resModel == "res.partner"' class="btn btn-primary"
+                    style="margin-left: 5px;" t-on-click="onClickWooCommCustomerImport">
+                Import from WooCommerce
+            </button>
+
+            <button type="button" t-if='props.resModel == "product.category"' class="btn btn-primary"
+                    style="margin-left: 5px;" t-on-click="onClickWooCommCategoryImport">
+                Import from WooCommerce
+            </button>    
+
+            <button type="button" t-if='props.resModel == "product.attribute"' class="btn btn-primary"
+                    style="margin-left: 5px;" t-on-click="onClickWooCommAttributeImport">
+                Import from WooCommerce
+            </button>  
+
+            <button type="button" t-if='props.resModel == "account.tax"' class="btn btn-primary"
+                    style="margin-left: 5px;" t-on-click="onClickWooCommTaxImport">
+                Import from WooCommerce
+            </button>                                   
+        </xpath>
+
+    </t>
+</templates>

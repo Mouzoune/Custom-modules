@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="menu_wooc_root"
+        name="WooCommerce Connect"
+        sequence="10" />
+
+        <menuitem id="menu_dashboard"
+            name="Dashboard"
+            parent="menu_wooc_root"
+            action="action_wooc_dashboard"
+            sequence="1"/>     
+        <menuitem id="menu_instance"
+            name="Woo Instance"
+            parent="menu_wooc_root"
+            action="action_wooc_instance_list"
+            sequence="2"/>                  
+            <menuitem id="menu_export_data"
+            name="Export/Import"
+            parent="menu_wooc_root"
+            sequence="3"/> 
+            <menuitem id="menu_import_shipping"
+            name="View/Import Shipping Methods"
+            parent="menu_export_data"
+            action="action_woocomm_wizard_import_shipping_methods"
+            sequence="10"/>          
+            
+
+ 
+              
+            
+
+
+            
+</odoo>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_account_tax_form_inherit" model="ir.ui.view">
+        <field name="name">account.tax.form.inherit</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="wooc_id" readonly="1"/>
+                <field name="woocomm_instance_id" readonly="1"/>
+                <field name="wooc_tax_rate" readonly="1"/>
+                <field name="wooc_tax_class" readonly="1"/>
+                <field name="is_exported" readonly="1"/>
+                <field name="is_woocomm_tax" readonly="1"/>
+                <field name="is_shipping" widget="boolean_toggle" readonly="1"/>
+                <field name="state_id" class="o_address_state" placeholder="State" options="{'no_open': True, 'no_quick_create': True}" context="{'country_id': country_id, 'default_country_id': country_id,}"/>
+            </xpath>
+            <xpath expr="//field[@name='country_id']" position="after">
+                <field name="state_id" class="o_address_state" placeholder="State" options="{'no_open': True, 'no_quick_create': True}" context="{'country_id': country_id, 'default_country_id': country_id,}"/>
+            </xpath>            
+        </field>
+    </record>
+
+    <record id="view_account_tax_tree_inherit" model="ir.ui.view">
+        <field name="name">account.tax.tree.inherit</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="js_class">woocomm_import_tax_button</attribute>
+            </xpath>            
+            <xpath expr="//field[@name='description']" position="after">
+                <field name="wooc_id" readonly="1"/>
+                <field name="woocomm_instance_id" readonly="1"/>
+                <field name="is_exported" readonly="1"/>
+                <field name="is_woocomm_tax" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_tax_search_inherit" model="ir.ui.view">
+        <field name="name">view.account.tax.search.inherit</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_account_tax_search"/>
+        <field name="arch" type="xml">
+            <search>
+                <filter string="WooCommerce Synced Taxes" name="woocomm_imported_taxes" domain="[('is_exported', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_account_tax_woocomm" model="ir.actions.act_window">
+        <field name="name">Taxes</field>
+        <field name="res_model">account.tax</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_woocomm_imported_taxes': True}
+        </field>
+        <field name="view_id" ref="account.view_tax_tree"/>
+    </record>
+
+</odoo>

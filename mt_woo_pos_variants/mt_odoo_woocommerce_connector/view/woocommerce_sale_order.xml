@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_woocomm_sale_order_form_inherit" model="ir.ui.view">
+        <field name="name">woocomm.sale.order.form.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//header" position="after">
+                <div class="alert alert-info" role="alert" style="height: 40px; margin-bottom:0px;" invisible = "id != False">
+                    <strong>The pricelist currency should be matching with company currency.</strong>
+                </div>
+            </xpath>
+<!--            <xpath expr="//header" position="inside">-->
+<!--&lt;!&ndash;                <button name="woocomm_order_update_button" string="Update Order in WooCommerce" type="object" &ndash;&gt;-->
+<!--&lt;!&ndash;                invisible = "state not in ['draft', 'sent','sale'] or id == False"&ndash;&gt;-->
+<!--&lt;!&ndash;                &ndash;&gt;-->
+<!--&lt;!&ndash;                class="btn btn-primary"/>&ndash;&gt;-->
+<!--            </xpath>-->
+
+            <xpath expr="//field[@name='product_template_id']" position="attributes">
+                <attribute name="domain">[('woocomm_instance_id','=',parent.woocomm_instance_id),('woocomm_instance_id','!=',False)]</attribute>
+                <attribute name="help">Please select woocommerce instance to see corresponding Products. </attribute>
+            </xpath> 
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="domain">[('woocomm_instance_id','=',woocomm_instance_id),('woocomm_instance_id','!=',False)]</attribute>
+            </xpath>  
+            <xpath expr="//field[@name='pricelist_id']" position="replace">
+                <field name="pricelist_id" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="woocomm_status" string="Woo status"/>
+                <field name="woocomm_product_status"  />
+                <field name="woocommerce_tag_ids" string="Tags" widget="many2many_tags" options="{'color_field': 'color'}"/>
+
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="before">
+                <field name="woocomm_instance_id" required = "1" force_save="1" options="{'no_quick_create':True,'no_create_edit':True}"
+                  invisible="1"  readonly = "woocomm_instance_id != False"/>
+            </xpath>
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="wooc_id" invisible="1" readonly="1"/>
+                <field name="is_woocomm_order" invisible="1" readonly="1"/>
+                <field name="is_exported" string="Synced" readonly="1"/>
+            </xpath>
+
+            <xpath expr="//notebook/page[2]" position="after">
+                <page string="Woo Details">
+                    <separator name="Order_data" string="Order" />
+
+                    <group col="3">
+                        <group>
+                            <field name="woocomm_order_no" string ="Order No :" readonly="1"/>
+                            <field name="woocomm_payment_method" string ="Order Payment Method :" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="woocomm_order_date" string ="Order Date :" readonly="1"/>
+                        </group>
+
+                        <group>
+                            <field name="woocomm_order_subtotal" string ="Order Sub Total:" readonly="1"/>
+                            <field name="woocomm_order_total_tax" string ="Order Total tax:" readonly="1"/>
+                            <field name="woocomm_order_total" string ="Order Total :" readonly="1"/>
+                        </group>
+                    </group>
+                    <!-- <group>
+                        <field name="woocomm_order_url" string ="Order URL :" readonly="1"/>
+                    </group> -->
+
+                    <separator name="Order_payment_status" string="Payment Status" />
+                    <group>
+                        <group>
+                            <field name="woocomm_status" string ="Order Status :" readonly="1"/> 
+                        </group>
+                    </group>
+                    <separator name="woocommerce_Order_Note" string="Order Note" />
+                    <group>
+                        <group>
+                            <field name="woocomm_order_note" string ="Order Note :"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+
+            <xpath expr="//div[hasclass('oe_button_box')]" position="after">
+                <field name="is_woocomm_order" invisible="1"/>
+                <widget name="web_ribbon" title="Woo Order"
+                        bg_color="text-bg-warning" invisible="not is_woocomm_order"/>
+
+            </xpath>
+
+
+            <xpath expr="/form/sheet/notebook/page[1]/field[@name='order_line']/tree/field[@name='product_template_id']" position="attributes">
+                    <attribute name="context">{'from_view':True}</attribute>
+            </xpath>
+            <xpath expr="/form/sheet/notebook/page[1]/field[@name='order_line']/tree/field[@name='product_uom_qty']" position="attributes">
+                    <attribute name="context">{'from_view':True}</attribute>
+            </xpath>
+            <xpath expr="/form/sheet/notebook/page[1]/field[@name='order_line']/tree/field[@name='price_unit']" position="attributes">
+                    <attribute name="context">{'from_view':True}</attribute>
+            </xpath>
+            <xpath expr="/form/sheet/notebook/page[1]/field[@name='order_line']/tree/field[@name='name']"
+                   position="after">
+                 <field name="woocomm_so_line_id" optional="hide"/>
+            </xpath>
+
+            <xpath expr="/form/sheet/notebook/page[1]/field[@name='order_line']/tree"
+                   position="attributes">
+                <attribute name="decoration-danger">not product_uom_qty or not price_unit</attribute>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="mtech_view_quotation_tree" model="ir.ui.view">
+        <field name="name">sale.order.tree</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.sale_order_tree"/>
+        <field name="priority">4</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="partner_phone" string="Phone"  widget="phone"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_woocomm_sale_order_tree_inherit" model="ir.ui.view">
+        <field name="name">sale.order.tree.inherit.woocomm</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//tree" position="attributes">
+                <attribute name="js_class">woocomm_import_sale_order_button</attribute>
+                <attribute name="decoration-danger">state == 'cancel'</attribute>
+                <attribute name="default_order">woocomm_order_date desc</attribute>
+
+                <attribute name="sample">1</attribute>
+                <attribute name="multi_edit">1</attribute>
+            </xpath>
+
+
+                        <xpath expr="//field[@name='date_order']" position="before">
+<!--                                            <field name="woocomm_order_date" width="20%" readonly="1"/>-->
+
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="partner_name_and_wooc_id_concatenated" string="Nom - Woo ID"/>
+
+  <!--               <field name="partner_phone" string="Phone"  widget="phone"/>-->
+            </xpath>
+
+            <xpath expr="//field[@name='activity_ids']" position="after">
+                <field name="wooc_id" column_invisible="1" readonly="1"/>
+                <field name="woocomm_instance_id" column_invisible="1" readonly="1"/>
+                <field name="woocommerce_tag_ids" readonly="1" string="tags" widget="many2many_tags"  options="{'color_field': 'color'}"/>
+
+                <field name="woocomm_status" readonly="0"/>
+                <field name="woocomm_product_status" readonly="0" optional="show"/>
+<!--
+                <field name="woocomm_product_status" readonly="1"  optional="hide"  widget="badge"/>
+                <field name="woocomm_status" readonly="1"  widget="badge"  optional="hide" 
+                           decoration-danger="woocomm_status in ['cancelled','failed','trash', 'refunded']"
+                           decoration-warning="woocomm_status in ['on-hold']"
+                           decoration-info="woocomm_status in ['pending']"
+                           decoration-success="woocomm_status in ['completed', 'processing']"/>-->
+                <field name="is_exported" column_invisible="1" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_woocomm_sale_order_search_filter_inherit" model="ir.ui.view">
+        <field name="name">view.woocomm.sale.order.search.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                <filter string="Woocomm Synced Orders" name="woocomm_imported_orders" domain="[('is_exported', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_sale_order_tree_woocomm" model="ir.actions.act_window">
+        <field name="name">Sale Orders</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_id" ref="sale.view_order_tree"/>
+        <field name="context">{'search_default_woocomm_imported_orders': 1}</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    
+    <record id="action_call_wizard_generate_invoice" model="ir.actions.server">
+        <field name="name">Generate Invoice</field>
+        <field name="model_id" ref="model_sale_order"/>
+        <field name="binding_model_id" ref="model_sale_order"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+            if records:
+                action = records.action_generate_invoice()
+        </field>
+    </record>  
+    
+    <record id="action_call_woocomm_order_wizard" model="ir.actions.server">
+        <field name="name">WooCommerce Order Actions</field>
+        <field name="model_id" ref="model_sale_order"/>
+        <field name="binding_model_id" ref="model_sale_order"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+            if records:
+                action = records.action_woocomm_order_wizard()
+        </field>
+    </record>         
+</odoo>
