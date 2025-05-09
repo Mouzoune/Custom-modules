@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-extend="ProductsWidget" t-inherit="point_of_sale.ProductsWidget" t-inherit-mode="extension">
+        <xpath expr='//t[@t-foreach="productsToDisplay"]' position="replace">
+            <t t-foreach="productsToDisplay" t-as="product" t-key="product.id">
+<!--                <t t-if="product.qty_available">-->
+<!--            <t t-esc="product.qty_available"/>-->
+                    <ProductCard
+                        class="pos.productViewMode"
+                        name="product.display_name"
+                        productId="product.id"
+                        price="product.getFormattedUnitPrice()"
+                        imageUrl="pos.show_product_images and product.getImageUrl()"
+                        onClick="() =>this.pos.addProductToCurrentOrder(product)"
+                        productInfo="true"
+                        onProductInfoClick="() => this.onProductInfoClick(product)"
+                    />
+
+<!--                </t>-->
+            </t>
+        </xpath>
+
+        <xpath expr='//ProductCard' position="attributes">
+            <attribute name="name"> this.env.services.pos.config.sh_pos_enable_product_variants and product.product_variant_count &gt; 1 ? product.name : product.display_name</attribute>
+            <attribute name="price"> (this.env.services.pos.config.sh_pos_enable_product_variants and product.product_variant_qty_available_count &gt; 1 ) ? product.product_variant_qty_available_count + ' variants' : product.getFormattedUnitPrice()</attribute>
+            <attribute name="onClick"> (this.env.services.pos.config.sh_pos_enable_product_variants and product.product_variant_count &gt; 1 ) ? () => this.clickVariant(product.product_tmpl_id) :  () =&gt; this.pos.addProductToCurrentOrder(product)</attribute>
+            
+            <!-- Pass variant count -->
+            <attribute name="product_variant_count"> product.product_variant_count </attribute>
+
+        </xpath>
+    </t>
+</templates>
