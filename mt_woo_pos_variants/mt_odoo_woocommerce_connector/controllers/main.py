@@ -106,20 +106,27 @@ class Main(http.Controller):
             product_data = payload
             # if not product_data:
             #     return {'status': 'error', 'message': 'No product data found in payload'}
+            wooc_instance = request.env['woocommerce.instance'].search([], limit=1, order='id asc')
 
-            # Check if the product already exists
-            product = request.env['product.template'].sudo().search(
-                [('wooc_id', '=', product_data['id']), ('woocomm_instance_id', '=', woocomm_instance_id.id)], limit=1
-            )
-            _logger.error(f'product =  {product}')
+            woo_api = self.init_wc_api(wooc_instance)
+            product_id = product_data['id']
+            params, url = {}, f"products" + f'?include={f"{product_id}"}'
+            products = woo_api.get(url, params=params)
+            request.env['product.template'].sudo().create_product(products, wooc_instance)
+            
+            # # Check if the product already exists
+            # product = request.env['product.template'].sudo().search(
+            #     [('wooc_id', '=', product_data['id']), ('woocomm_instance_id', '=', woocomm_instance_id.id)], limit=1
+            # )
+            # _logger.error(f'product =  {product}')
 
-            # Create or update the product
-            if product:
-                _logger.info(f"Updating product with WooCommerce ID {product_data['id']}")
-                product.sudo().write(self._prepare_product_vals(product_data, woocomm_instance_id))
-            else:
-                _logger.info(f"Creating product with WooCommerce ID {product_data['id']}")
-                request.env['product.template'].sudo().create(self._prepare_product_vals(product_data, woocomm_instance_id))
+            # # Create or update the product
+            # if product:
+            #     _logger.info(f"Updating product with WooCommerce ID {product_data['id']}")
+            #     product.sudo().write(self._prepare_product_vals(product_data, woocomm_instance_id))
+            # else:
+            #     _logger.info(f"Creating product with WooCommerce ID {product_data['id']}")
+            #     request.env['product.template'].sudo().create(self._prepare_product_vals(product_data, woocomm_instance_id))
 
             return {'status': 'success', 'message': 'Product processed successfully'}
         except Exception as e:
