@@ -54,6 +54,7 @@ class Main(http.Controller):
                 self._create_or_update_variations(product, p_item['variations'], wooc_instance)
 
     def _prepare_product_vals(self, p_item, wooc_instance):
+        _logger.error(f'p_item =  {p_item}')
         data =  {
             'wooc_id': p_item['id'],
             'name': p_item.get('name', ''),
