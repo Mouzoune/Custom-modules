@@ -102,14 +102,15 @@ class Main(http.Controller):
             _logger.info(f"Webhook payload received: {payload}")
             woocomm_instance_id = request.env['woocommerce.instance'].search([], limit=1, order='id asc')
             # Extract product data from the payload
-            product_data = payload.get('product', {})
-            if not product_data:
-                return {'status': 'error', 'message': 'No product data found in payload'}
+            # product_data = payload.get('product', {})
+            # if not product_data:
+            #     return {'status': 'error', 'message': 'No product data found in payload'}
 
             # Check if the product already exists
             product = request.env['product.template'].sudo().search(
                 [('wooc_id', '=', product_data['id']), ('woocomm_instance_id', '=', woocomm_instance_id.id)], limit=1
             )
+            _logger.error(f'product =  {product}')
 
             # Create or update the product
             if product:
