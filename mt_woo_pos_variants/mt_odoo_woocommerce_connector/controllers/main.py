@@ -54,7 +54,7 @@ class Main(http.Controller):
                 self._create_or_update_variations(product, p_item['variations'], wooc_instance)
 
     def _prepare_product_vals(self, p_item, wooc_instance):
-        return {
+        data =  {
             'wooc_id': p_item['id'],
             'name': p_item.get('name', ''),
             'woocomm_instance_id': wooc_instance.id,
@@ -66,6 +66,9 @@ class Main(http.Controller):
             'is_exported': True,
             'is_product_active': p_item.get('status') == 'publish',
         }
+        _logger.error(f'data =  {data}')
+
+        return data
 
     def _create_or_update_variations(self, product, variations, wooc_instance):
         for variation in variations:
