@@ -46,8 +46,8 @@ class WooCommerceProductInstanceImp(models.Model):
 
 
     def product_instance_selected_for_imp(self):
-        woocomm_instance_id = self.env['woocommerce.instance'].search([], limit=1, order='id desc')
-        self.env['product.template'].import_product(woocomm_instance_id, self.is_force_update)
+        # woocomm_instance_id = self.env['woocommerce.instance'].search([], limit=1, order='id desc')
+        self.env['product.template'].import_product(self.woocomm_instance_id, self.is_force_update)
         
         current_instance = self.env['woocommerce.instance'].sudo().search([('id','=',self.woocomm_instance_id.id)],limit=1)
         product_action = current_instance.get_products()
