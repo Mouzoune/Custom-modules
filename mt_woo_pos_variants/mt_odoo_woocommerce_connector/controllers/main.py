@@ -14,6 +14,7 @@ from odoo.addons.website.controllers.form import WebsiteForm
 from werkzeug.exceptions import BadRequest
 from odoo.exceptions import AccessDenied, ValidationError, UserError
 from odoo.tools.image import image_guess_size_from_field_name
+from woocommerce import API
 
 
 class Main(http.Controller):
@@ -96,7 +97,6 @@ class Main(http.Controller):
                     request.env['product.product'].sudo().create(variant_vals)
 
     def init_wc_api(self, wooc_instance):
-        from woocommerce import API
         wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
 
         if wooc_instance.is_authenticated:
@@ -131,14 +131,29 @@ class Main(http.Controller):
             #     return {'status': 'error', 'message': 'No product data found in payload'}
             wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
 
-            woo_api = self.init_wc_api(wooc_instance)
+            # woo_api = self.init_wc_api(wooc_instance)
             product_id = product_data['id']
             params, url = {}, f"products" + f'?include={f"{product_id}"}'
-            _logger.error(f'params, url ===  {params}. {url}')
-            products = woo_api.get(url, params=params)
-            _logger.error(f'products ===  {products}. ')
-            request.env['product.template'].sudo().create_product(products, wooc_instance)
+            _logger.error(f'params, url ===  {params}. {url} {wooc_instance.display_name} {wooc_instance}')
             
+
+            try:
+                woo_api = API(
+                    url=wooc_instance.shop_url,
+                    consumer_key=wooc_instance.wooc_consumer_key,
+                    consumer_secret=wooc_instance.wooc_consumer_secret,
+                    wp_api=True,
+                    version=wooc_instance.wooc_api_version
+                )
+                products = woo_api.get(url, params=params)
+                _logger.error(f'products ===  {products}. ')
+                request.env['product.template'].sudo().create_product(products, wooc_instance)
+
+                return {'status': 'success', 'message': 'Product processed successfully'}
+            except Exception as error:
+                raise UserError(_("Please check your connection and try again"))
+
+
             # # Check if the product already exists
             # product = request.env['product.template'].sudo().search(
             #     [('wooc_id', '=', product_data['id']), ('woocomm_instance_id', '=', woocomm_instance_id.id)], limit=1
