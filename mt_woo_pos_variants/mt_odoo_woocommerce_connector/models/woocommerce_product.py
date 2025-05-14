@@ -326,7 +326,7 @@ class Product(models.Model):
             #existed_products = list(self.env.company.sudo().must_create_update_products.values())
             if not is_force_update:
                 # existed_products_ids = self.env['product.template'].sudo().browse(existed_products)
-                _logger.error(f'woocomm_instance_id.  == {woocomm_instance_id.display_name}')
+                _logger.error(f'woocomm_instance_id.  == {wooc_instance.display_name}')
                 exist = self.env['product.template'].sudo().search([('wooc_id', '=', p_item['id']), ('woocomm_instance_id', '=', wooc_instance.id)],limit=1)
                 _logger.error(f'product.exist   {exist}')
                 # exist = self.env['product.template'].sudo().search([('wooc_id', '=', p_item['id'])],limit=1) + existed_products_ids
