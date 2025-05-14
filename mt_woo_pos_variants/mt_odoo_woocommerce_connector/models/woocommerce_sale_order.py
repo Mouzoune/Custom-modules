@@ -468,7 +468,7 @@ class SaleOrder(models.Model):
                 
                 self.env['product.template'].sudo().get_wooc_product_data(line_item.get('product_id'), instance_id)
                 res_product = self.env['product.product'].sudo().search(
-                ['|', ('woocomm_variant_id', '=', line_item.get('product_id')), ('woocomm_variant_id', '=', line_item.get('variation_id'))],
+                [('woocomm_instance_id', '=', instance_id.id), '|', ('woocomm_variant_id', '=', line_item.get('product_id')), ('woocomm_variant_id', '=', line_item.get('variation_id'))],
                 limit=1)
                 
                 # need to check about creating product using existing function
@@ -861,7 +861,8 @@ class SaleOrder(models.Model):
                     order_invoice.action_register_payment() #to register payment 
 
     def woocomm_order_update_buttons(self, rec):
-        wooc_instance = self.env['woocommerce.instance'].sudo().search([], limit=1, order='id desc')
+        # wooc_instance = self.env['woocommerce.instance'].sudo().search([], limit=1, order='id desc')
+        wooc_instance = rec.woocomm_instance_id
         if wooc_instance:
             woo_api = self.init_wc_api(wooc_instance)
             data = {
