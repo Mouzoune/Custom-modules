@@ -333,19 +333,18 @@ class SaleOrder(models.Model):
                    # _logger.error([int(woo_so_line_id) for woo_so_line_id in sale_order.order_line.mapped('woocomm_so_line_id') if int(woo_so_line_id) in lines_ids])
                     for sol_item in order['line_items']:
                         res_product = self.env['product.product'].sudo().search(
-                            ['|', ('woocomm_variant_id', '=', sol_item.get('product_id')), ('woocomm_variant_id', '=', sol_item.get('variation_id'))],
+                            [('woocomm_instance_id', '=', instance_id.id),'|', ('woocomm_variant_id', '=', sol_item.get('product_id')), ('woocomm_variant_id', '=', sol_item.get('variation_id'))],
                             limit=1)
 
                         if res_product:
                             s_order_line = self.env['sale.order.line'].sudo().search(
-                                [('product_id', '=', res_product.id),
-                                    (('order_id', '=', sale_order.id))], limit=1)
+                                [('product_id', '=', res_product.id), ('order_id', '=', sale_order.id), ('woocomm_instance_id', '=', instance_id.id)], limit=1)
 
                             if s_order_line:
                                 tax_id_list= self.add_tax_lines( instance_id, sol_item.get('taxes'))
                         
                                 so_line = self.env['sale.order.line'].sudo().search(
-                                    ['&', ('product_id', '=', res_product.id),
+                                    [('woocomm_instance_id', '=', instance_id.id), '&', ('product_id', '=', res_product.id),
                                         (('order_id', '=', sale_order.id))], limit=1)
                                 if so_line:
                                     so_line_data = {
