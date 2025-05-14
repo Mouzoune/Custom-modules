@@ -97,6 +97,7 @@ class Main(http.Controller):
 
     def init_wc_api(self, wooc_instance):
         from woocommerce import API
+        wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
 
         if wooc_instance.is_authenticated:
             try:
@@ -121,19 +122,21 @@ class Main(http.Controller):
     def webhook_product_updated(self, **kwargs):
         try:
             # Parse the JSON payload
-            payload = json.loads(request.httprequest.data)
-            _logger.info(f"Webhook payload received: {payload}")
+            product_data = json.loads(request.httprequest.data)
+            _logger.info(f"Webhook payload received: {product_data}")
             woocomm_instance_id = request.env['woocommerce.instance'].search([], limit=1, order='id asc')
             # Extract product data from the payload
-            product_data = payload
+            # product_data = payload
             # if not product_data:
             #     return {'status': 'error', 'message': 'No product data found in payload'}
-            wooc_instance = request.env['woocommerce.instance'].search([], limit=1, order='id asc')
+            wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
 
             woo_api = self.init_wc_api(wooc_instance)
             product_id = product_data['id']
             params, url = {}, f"products" + f'?include={f"{product_id}"}'
+            _logger.error(f'params, url ===  {params}. {url}')
             products = woo_api.get(url, params=params)
+            _logger.error(f'products ===  {products}. ')
             request.env['product.template'].sudo().create_product(products, wooc_instance)
             
             # # Check if the product already exists
