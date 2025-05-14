@@ -61,8 +61,8 @@ class Main(http.Controller):
             'woocomm_instance_id': wooc_instance.id,
             'type': 'product',
             'woocomm_product_status': p_item.get('status', 'draft'),
-            'woocomm_regular_price': float(p_item.get('regular_price', 0.0)),
-            'woocomm_sale_price': float(p_item.get('sale_price', 0.0)),
+            'woocomm_regular_price': float(p_item.get('regular_price', 0.0)) if p_item.get('regular_price', 0.0) else 0.0,
+            'woocomm_sale_price': float(p_item.get('sale_price', 0.0)) if p_item.get('sale_price', 0.0) else 0.0,
             'description': p_item.get('description', ''),
             'is_exported': True,
             'is_product_active': p_item.get('status') == 'publish',
@@ -80,8 +80,8 @@ class Main(http.Controller):
             for var_data in variation_data:
                 variant_vals = {
                     'woocomm_variant_id': var_data['id'],
-                    'woocomm_regular_price': float(var_data.get('regular_price', 0.0)),
-                    'woocomm_sale_price': float(var_data.get('sale_price', 0.0)),
+                    'woocomm_regular_price': float(p_item.get('regular_price', 0.0)) if p_item.get('regular_price', 0.0) else 0.0,
+                    'woocomm_sale_price': float(p_item.get('sale_price', 0.0)) if p_item.get('sale_price', 0.0) else 0.0,
                     'woocomm_stock_quantity': var_data.get('stock_quantity', 0),
                     'woocomm_stock_status': var_data.get('stock_status', 'instock'),
                     'is_exported': True,
