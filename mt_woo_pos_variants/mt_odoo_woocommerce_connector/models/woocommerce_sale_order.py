@@ -272,7 +272,7 @@ class SaleOrder(models.Model):
                 self.env['res.partner'].create_customer(customer_data, instance_id)
 
                 res_partner = self.env['res.partner'].sudo().search(
-                        [('wooc_user_id', '=', order['customer_id'])], limit=1)
+                        [('wooc_user_id', '=', order['customer_id']), ('woocomm_instance_id', '=', instance_id.id)], limit=1)
         
         if res_partner:
             
@@ -460,7 +460,7 @@ class SaleOrder(models.Model):
         res_product = ''
         if line_item.get('product_id') or line_item.get('variation_id'):
             res_product = self.env['product.product'].sudo().search(
-                ['|', ('woocomm_variant_id', '=', line_item.get('product_id')), ('woocomm_variant_id', '=', line_item.get('variation_id'))],
+                [('woocomm_instance_id', '=', instance_id.id),'|', ('woocomm_variant_id', '=', line_item.get('product_id')), ('woocomm_variant_id', '=', line_item.get('variation_id'))],
                 limit=1)
             
             if not res_product:
