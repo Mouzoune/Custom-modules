@@ -639,8 +639,8 @@ class Product(models.Model):
                 wc_variation = woo_api.post("products/%s/variations"%product_wooc_id, data).json()
 
                 if wc_variation:
-                    wooc_variant = self.env['woocommerce.product.variant'].sudo().search([('product_template_id', '=', product.id),("product_variant_id", "=", variant.id)])
-                    data = {"wooc_id" : wc_variation["id"], "product_template_id" : product.id,"product_variant_id": variant.id, "is_manage_stock" : wc_variation["manage_stock"], "wooc_stock_quantity": wc_variation["stock_quantity"], }
+                    wooc_variant = self.env['woocommerce.product.variant'].sudo().search([('product_template_id', '=', product.id),("product_variant_id", "=", variant.id), ('woocomm_instance_id', '=', wooc_instance.id)])
+                    data = {"wooc_id" : wc_variation["id"], "woocomm_instance_id" : wooc_instance.id, "product_template_id" : product.id,"product_variant_id": variant.id, "is_manage_stock" : wc_variation["manage_stock"], "wooc_stock_quantity": wc_variation["stock_quantity"], }
 
                     if wooc_variant:
                         wooc_variant.write(data)
