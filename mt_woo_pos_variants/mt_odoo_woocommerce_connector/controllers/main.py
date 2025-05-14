@@ -31,7 +31,7 @@ class Main(http.Controller):
         # Perform your logic here
         return {'status': 'success', 'message': 'Webhook received'}
 
-    @http.route('/webhook/wp/products>', type='json', auth='public', methods=['POST', 'GET'], csrf=False)
+    @http.route('/webhook/wp/products', type='json', auth='public', methods=['POST', 'GET'], csrf=False)
     def webhook_product_updated(self, wc_action, wc_id, **kwargs):
         payload = json.loads(request.httprequest.data)
         _logger.error(payload)
