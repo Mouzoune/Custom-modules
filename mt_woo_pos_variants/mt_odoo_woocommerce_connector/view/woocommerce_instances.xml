@@ -5,27 +5,30 @@
         <field name="name">wooc.instance.form</field>
         <field name="model">woocommerce.instance</field>
         <field name="arch" type="xml">
-            <form string="Configure Instance">
+            <form string="Configure l'instance WooCommerce">
                 <header>
-                    <button string='Authenticate' type="object" name="connection_authenticate" class="oe_highlight"
-                        icon="fa-plug" />
+                    <button string="Tester la connexion avec WooCommerce" type="object" name="connection_authenticate" class="btn btn-warning"/>
                 </header>
-                <div class="alert alert-danger" role="alert" style="height: 40px; margin-bottom:0px;" invisible = "is_authenticated == True">
-                    <strong>The connection need to Authenticate!!!</strong>
+                <div class="alert alert-danger" role="alert" style="height: 40px; margin-bottom:0px;" invisible="is_authenticated == True">
+                    <strong>L'authentification est requise pour la connexion !</strong>
                 </div>
 
                 <sheet>
                     <group>
                         <group>
-                            <field name="name" />
-                            <field name="shop_url" />
-                            <field name="wooc_consumer_key" password="True" />
-                            <field name="wooc_consumer_secret" password="True" />
-                            <field name="wooc_api_version" />
+                            <field name="name"/>
+                            <field name="shop_url"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="wooc_consumer_key" password="True" string="Clé client"/>
+                            <field name="wooc_api_version" string="Version API"/>
                             <field name="is_authenticated" invisible="1"/>
-                            <field name='wooc_company_id' required="1"
-                                options="{'no_open':True,'no_create':True,'no_create_edit':True}"
-                                string="Company" />
+                        </group>
+                        <group>
+                            <field name="wooc_consumer_secret" password="True" string="Clé secrète"/>
+                            <field name="wooc_company_id" required="1" options="{'no_open':True,'no_create':True,'no_create_edit':True}" string="Société"/>
                         </group>
                     </group>
                 </sheet>
