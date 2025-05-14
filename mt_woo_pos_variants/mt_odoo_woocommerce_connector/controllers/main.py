@@ -70,7 +70,7 @@ class Main(http.Controller):
     def _create_or_update_variations(self, product, variations, wooc_instance):
         for variation in variations:
             variant = request.env['product.product'].sudo().search(
-                [('woocomm_variant_id', '=', variation), ('product_tmpl_id', '=', product.id)], limit=1)
+                [('woocomm_variant_id', '=', variation), ('product_tmpl_id', '=', product.id), ('woocomm_instance_id', '=', wooc_instance.id)], limit=1)
 
             variation_data = self.get_all_products_variants(product.wooc_id, wooc_instance, limit=20)
             for var_data in variation_data:
@@ -97,7 +97,7 @@ class Main(http.Controller):
             # Parse the JSON payload
             payload = json.loads(request.httprequest.data)
             _logger.info(f"Webhook payload received: {payload}")
-
+            woocomm_instance_id = request.env['woocommerce.instance'].search([], limit=1, order='id asc')
             # Extract product data from the payload
             product_data = payload.get('product', {})
             if not product_data:
@@ -105,16 +105,16 @@ class Main(http.Controller):
 
             # Check if the product already exists
             product = request.env['product.template'].sudo().search(
-                [('wooc_id', '=', product_data['id'])], limit=1
+                [('wooc_id', '=', product_data['id']), ('woocomm_instance_id', '=', woocomm_instance_id.id)], limit=1
             )
 
             # Create or update the product
             if product:
                 _logger.info(f"Updating product with WooCommerce ID {product_data['id']}")
-                product.sudo().write(self._prepare_product_vals(product_data, None))
+                product.sudo().write(self._prepare_product_vals(product_data, woocomm_instance_id))
             else:
                 _logger.info(f"Creating product with WooCommerce ID {product_data['id']}")
-                request.env['product.template'].sudo().create(self._prepare_product_vals(product_data, None))
+                request.env['product.template'].sudo().create(self._prepare_product_vals(product_data, woocomm_instance_id))
 
             return {'status': 'success', 'message': 'Product processed successfully'}
         except Exception as e:
