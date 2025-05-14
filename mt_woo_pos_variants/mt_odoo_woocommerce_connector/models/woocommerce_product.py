@@ -253,7 +253,7 @@ class Product(models.Model):
             raise UserError(_("Connection Instance needs to authenticate first. \n Please try after authenticating connection!!!"))
 
     # Farid products
-    def get_all_products(self, wooc_instance, limit=100):
+    def get_all_products(self, wooc_instance, limit=10):
         woo_api = self.init_wc_api(wooc_instance)
         #existed_products = list(self.env.company.sudo().must_create_update_products.values())
 
@@ -264,7 +264,7 @@ class Product(models.Model):
         _logger.error(url)
         get_next_page = True
         page = 1
-        while get_next_page and page <= 4:
+        while get_next_page and page <= 2:
             try:
                 products = woo_api.get(url, params={'orderby': 'id', 'order': 'asc','per_page': limit, 'page': page})
                 page += 1
@@ -326,10 +326,11 @@ class Product(models.Model):
             #existed_products = list(self.env.company.sudo().must_create_update_products.values())
             if not is_force_update:
                 # existed_products_ids = self.env['product.template'].sudo().browse(existed_products)
+                _logger.error(f'woocomm_instance_id.  == {woocomm_instance_id.display_name}')
                 exist = self.env['product.template'].sudo().search([('wooc_id', '=', p_item['id']), ('woocomm_instance_id', '=', wooc_instance.id)],limit=1)
+                _logger.error(f'product.exist   {exist}')
                 # exist = self.env['product.template'].sudo().search([('wooc_id', '=', p_item['id'])],limit=1) + existed_products_ids
                 # _logger.error('existed_products///////////')
-                # _logger.error(existed_products)
                 # exist = self.env['product.template'].sudo().search([('wooc_id', 'in', existed_products)])
                 # exist = existed_products_ids
                 if exist:
@@ -340,6 +341,7 @@ class Product(models.Model):
 
 
     def create_product(self, p_item, wooc_instance):
+        _logger.error(f'create_product  == {p_item["name"]}.   {wooc_instance.id}. {wooc_instance.display_name}')
 
         p_tags = []
 
