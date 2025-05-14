@@ -145,9 +145,9 @@ class Main(http.Controller):
                     wp_api=True,
                     version=wooc_instance.wooc_api_version
                 )
-                products = woo_api.get(url, params=params)
-                _logger.error(f'products ===  {products}. ')
-                request.env['product.template'].sudo().create_product(products, wooc_instance)
+                product = woo_api.get(url, params=params)
+                _logger.error(f'product ===  {product} . ')
+                request.env['product.template'].sudo().create_product(product, wooc_instance)
 
                 return {'status': 'success', 'message': 'Product processed successfully'}
             except Exception as error:
