@@ -102,7 +102,7 @@ class Main(http.Controller):
             _logger.info(f"Webhook payload received: {payload}")
             woocomm_instance_id = request.env['woocommerce.instance'].search([], limit=1, order='id asc')
             # Extract product data from the payload
-            # product_data = payload.get('product', {})
+            product_data = payload
             # if not product_data:
             #     return {'status': 'error', 'message': 'No product data found in payload'}
 
