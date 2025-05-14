@@ -242,6 +242,7 @@ class WooCommerceProductVariants(models.Model):
     product_template_id = fields.Many2one('product.template', string='Product template', ondelete='cascade')
     product_variant_id = fields.Many2one('product.product', string='Product Variant', ondelete='cascade')
     file_name = fields.Char("File Name", readonly=True)
+    woocomm_instance_id = fields.Many2one('woocommerce.instance', string='WooCommerce Instance')
 
     def write(self, vals):
         
