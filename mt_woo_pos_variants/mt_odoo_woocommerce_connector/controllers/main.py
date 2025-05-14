@@ -31,13 +31,103 @@ class Main(http.Controller):
         # Perform your logic here
         return {'status': 'success', 'message': 'Webhook received'}
 
+    def import_product(self, wooc_instance, is_force_update=False):
+        for p_item in self.get_all_products(wooc_instance, limit=20):
+            # Check if the product already exists
+            product = request.env['product.template'].sudo().search(
+                [('wooc_id', '=', p_item['id']), ('woocomm_instance_id', '=', wooc_instance.id)], limit=1)
+
+            if product and not is_force_update:
+                _logger.info(f"Product {p_item['id']} already exists. Skipping update.")
+                continue
+
+            # Create or update the product
+            if product:
+                _logger.info(f"Updating Product {p_item['id']}")
+                product.sudo().write(self._prepare_product_vals(p_item, wooc_instance))
+            else:
+                _logger.info(f"Creating Product {p_item['id']}")
+                product = request.env['product.template'].sudo().create(self._prepare_product_vals(p_item, wooc_instance))
+
+            # Handle variations
+            if p_item.get('variations'):
+                self._create_or_update_variations(product, p_item['variations'], wooc_instance)
+
+    def _prepare_product_vals(self, p_item, wooc_instance):
+        return {
+            'wooc_id': p_item['id'],
+            'name': p_item.get('name', ''),
+            'woocomm_instance_id': wooc_instance.id,
+            'type': 'product',
+            'woocomm_product_status': p_item.get('status', 'draft'),
+            'woocomm_regular_price': float(p_item.get('regular_price', 0.0)),
+            'woocomm_sale_price': float(p_item.get('sale_price', 0.0)),
+            'description': p_item.get('description', ''),
+            'is_exported': True,
+            'is_product_active': p_item.get('status') == 'publish',
+        }
+
+    def _create_or_update_variations(self, product, variations, wooc_instance):
+        for variation in variations:
+            variant = request.env['product.product'].sudo().search(
+                [('woocomm_variant_id', '=', variation), ('product_tmpl_id', '=', product.id)], limit=1)
+
+            variation_data = self.get_all_products_variants(product.wooc_id, wooc_instance, limit=20)
+            for var_data in variation_data:
+                variant_vals = {
+                    'woocomm_variant_id': var_data['id'],
+                    'woocomm_regular_price': float(var_data.get('regular_price', 0.0)),
+                    'woocomm_sale_price': float(var_data.get('sale_price', 0.0)),
+                    'woocomm_stock_quantity': var_data.get('stock_quantity', 0),
+                    'woocomm_stock_status': var_data.get('stock_status', 'instock'),
+                    'is_exported': True,
+                }
+
+                if variant:
+                    _logger.info(f"Updating Variant {var_data['id']}")
+                    variant.sudo().write(variant_vals)
+                else:
+                    _logger.info(f"Creating Variant {var_data['id']}")
+                    variant_vals.update({'product_tmpl_id': product.id})
+                    request.env['product.product'].sudo().create(variant_vals)
+
     @http.route('/wp-json/wc/v3/webhooks', type='json', auth='public', methods=['POST', 'GET'], csrf=False)
     def webhook_product_updated(self, **kwargs):
-        _logger.error(f'kwargs == {kwargs}')
-        payload = json.loads(request.httprequest.data)
-        _logger.error(payload)
+        try:
+            # Parse the JSON payload
+            payload = json.loads(request.httprequest.data)
+            _logger.info(f"Webhook payload received: {payload}")
 
-        return {'status': 'success', 'message': 'Webhook received'}
+            # Extract product data from the payload
+            product_data = payload.get('product', {})
+            if not product_data:
+                return {'status': 'error', 'message': 'No product data found in payload'}
+
+            # Check if the product already exists
+            product = request.env['product.template'].sudo().search(
+                [('wooc_id', '=', product_data['id'])], limit=1
+            )
+
+            # Create or update the product
+            if product:
+                _logger.info(f"Updating product with WooCommerce ID {product_data['id']}")
+                product.sudo().write(self._prepare_product_vals(product_data, None))
+            else:
+                _logger.info(f"Creating product with WooCommerce ID {product_data['id']}")
+                request.env['product.template'].sudo().create(self._prepare_product_vals(product_data, None))
+
+            return {'status': 'success', 'message': 'Product processed successfully'}
+        except Exception as e:
+            _logger.error(f"Error processing webhook: {e}")
+            return {'status': 'error', 'message': str(e)}
+
+    # @http.route('/wp-json/wc/v3/webhooks', type='json', auth='public', methods=['POST', 'GET'], csrf=False)
+    # def webhook_product_updated(self, **kwargs):
+    #     _logger.error(f'kwargs == {kwargs}')
+    #     payload = json.loads(request.httprequest.data)
+    #     _logger.error(payload)
+
+    #     return {'status': 'success', 'message': 'Webhook received'}
 
 
     @http.route('/webhook/wp/product/<string:wc_action>/<int:wc_id>', type='json', auth='public', methods=['POST'], csrf=False)
