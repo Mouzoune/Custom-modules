@@ -95,6 +95,28 @@ class Main(http.Controller):
                     variant_vals.update({'product_tmpl_id': product.id})
                     request.env['product.product'].sudo().create(variant_vals)
 
+    def init_wc_api(self, wooc_instance):
+        from woocommerce import API
+
+        if wooc_instance.is_authenticated:
+            try:
+                woo_api = API(
+                    url=wooc_instance.shop_url,
+                    consumer_key=wooc_instance.wooc_consumer_key,
+                    consumer_secret=wooc_instance.wooc_consumer_secret,
+                    wp_api=True,
+                    version=wooc_instance.wooc_api_version
+                )
+                req_data = woo_api.get("")
+
+                return woo_api
+            except Exception as error:
+                raise UserError(_("Please check your connection and try again"))
+        else:
+            raise UserError(
+                _("Connection Instance needs to authenticate first. \n Please try after authenticating connection!!!"))
+
+
     @http.route('/wp-json/wc/v3/webhooks', type='json', auth='public', methods=['POST', 'GET'], csrf=False)
     def webhook_product_updated(self, **kwargs):
         try:
