@@ -338,13 +338,13 @@ class SaleOrder(models.Model):
 
                         if res_product:
                             s_order_line = self.env['sale.order.line'].sudo().search(
-                                [('product_id', '=', res_product.id), ('order_id', '=', sale_order.id), ('woocomm_instance_id', '=', instance_id.id)], limit=1)
+                                [('product_id', '=', res_product.id), ('order_id', '=', sale_order.id), ('order_id.woocomm_instance_id', '=', instance_id.id)], limit=1)
 
                             if s_order_line:
                                 tax_id_list= self.add_tax_lines( instance_id, sol_item.get('taxes'))
                         
                                 so_line = self.env['sale.order.line'].sudo().search(
-                                    [('woocomm_instance_id', '=', instance_id.id), '&', ('product_id', '=', res_product.id),
+                                    [('order_id.woocomm_instance_id', '=', instance_id.id), '&', ('product_id', '=', res_product.id),
                                         (('order_id', '=', sale_order.id))], limit=1)
                                 if so_line:
                                     so_line_data = {
