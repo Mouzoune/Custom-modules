@@ -41,8 +41,8 @@
         <field name="model">woocommerce.instance</field>
         <field name="arch" type="xml">
             <tree string="Woo Commerce Instance">
-                <field name="name" />
-                <field name="wooc_company_id" />
+                <field name="name"  string="Site-Web"/>
+                <field name="wooc_company_id" string="Société" />
             </tree>
         </field>
     </record>

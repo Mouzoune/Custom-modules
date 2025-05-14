@@ -2,21 +2,21 @@
 <odoo>
     <menuitem
         id="menu_wooc_root"
-        name="WooCommerce Connect"
+        name="Connecteur WooCommerce"
         sequence="10" />
 
         <menuitem id="menu_dashboard"
-            name="Dashboard"
+            name="Tableau de bord"
             parent="menu_wooc_root"
             action="action_wooc_dashboard"
             sequence="1"/>     
         <menuitem id="menu_instance"
-            name="Woo Instance"
+            name="Site-Web"
             parent="menu_wooc_root"
             action="action_wooc_instance_list"
             sequence="2"/>                  
             <menuitem id="menu_export_data"
-            name="Export/Import"
+            name="Importation / Exportation"
             parent="menu_wooc_root"
             sequence="3"/> 
             <menuitem id="menu_import_shipping"
