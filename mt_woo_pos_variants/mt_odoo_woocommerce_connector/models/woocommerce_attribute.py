@@ -96,7 +96,7 @@ class ProductAttribute(models.Model):
               
     def import_attributes(self, wooc_instance, is_force_update = False):
 
-        for attr_item in self.get_all_attributes(wooc_instance, limit=1000):
+        for attr_item in self.get_all_attributes(wooc_instance, limit=100):
             _logger.info('\n\n\n\n  woocomm attribute =  %s \n\n\n\n' % (attr_item) )
             
             # exist = self.env['product.attribute'].sudo().search([('wooc_id', '=', attr_item['id'])],limit=1)
