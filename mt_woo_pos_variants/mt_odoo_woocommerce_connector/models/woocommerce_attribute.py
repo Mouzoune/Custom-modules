@@ -96,7 +96,7 @@ class ProductAttribute(models.Model):
               
     def import_attributes(self, wooc_instance, is_force_update = False):
 
-        for attr_item in self.get_all_attributes(wooc_instance, limit=100):
+        for attr_item in self.get_all_attributes(wooc_instance, limit=1000):
             _logger.info('\n\n\n\n  woocomm attribute =  %s \n\n\n\n' % (attr_item) )
             
             # exist = self.env['product.attribute'].sudo().search([('wooc_id', '=', attr_item['id'])],limit=1)
@@ -134,7 +134,7 @@ class ProductAttribute(models.Model):
     def create_attribute_terms(self, attr, wooc_instance):
         woo_api = self.init_wc_api(wooc_instance)
         attr_id = attr.wooc_id
-        wc_attr_terms = woo_api.get("products/attributes/%s/terms"%attr_id,params={'orderby': 'id', 'order': 'asc','per_page': 50,})
+        wc_attr_terms = woo_api.get("products/attributes/%s/terms"%attr_id,params={'orderby': 'id', 'order': 'asc','per_page': 10000,})
 
         if wc_attr_terms.status_code == 200:
             if wc_attr_terms.content:
