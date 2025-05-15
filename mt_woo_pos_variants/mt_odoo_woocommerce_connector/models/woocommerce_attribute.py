@@ -138,6 +138,8 @@ class ProductAttribute(models.Model):
         attr_id = attr.wooc_id
         _logger.error(f"MMM.  {attr}  {attr_id}")
         wc_attr_terms = woo_api.get("products/attributes/%s/terms"%attr_id,params={'orderby': 'id', 'order': 'asc','per_page': 10000,})
+        _logger.error(f"MMM.wc_attr_terms  {wc_attr_terms}  ")
+        _logger.error(f"MMM.wc_attr_terms.json   {wc_attr_terms.json()}")
 
         if wc_attr_terms.status_code == 200:
             if wc_attr_terms.content:
