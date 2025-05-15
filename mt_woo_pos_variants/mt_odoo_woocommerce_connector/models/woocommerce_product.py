@@ -413,7 +413,7 @@ class Product(models.Model):
         _logger.error(f'///////////////. product {product}')
 
         if not product:
-            product = self.env['product.template'].with_user(SUPERUSER_ID).sudo().create(dict_p)
+            product = self.env['product.template'].sudo().create(dict_p)
         else:
             _logger.error('///////////////---')
             
