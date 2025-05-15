@@ -441,7 +441,8 @@ class Product(models.Model):
 
                     for value in attr['options']:
                         existing_attr_value = self.env['product.attribute.value'].sudo().search(
-                            [('name', '=', value), ('attribute_id', '=', product_attr.id), ('woocomm_instance_id', '=', wooc_instance.id)], limit=1)
+                            [('woocomm_instance_id', '=', wooc_instance.id), '|', ('attribute_id', '=', product_attr.id),  ('woocomm_attribute_id', '=', product_attr.id)], limit=1)
+                        _logger.error(f'existing_attr_value. {existing_attr_value}')
                         p_attr_val.append(existing_attr_value.id)
 
                     if product_attr:
@@ -451,7 +452,7 @@ class Product(models.Model):
                                     ('value_ids', 'in', p_attr_val),
                                     ('product_tmpl_id', '=', product.id)], limit=1)
                             if not exist:
-                                _logger.error('/////////////////////   +++++ /')
+                                _logger.error('/////////////////////  p_attr_val +++++ /')
                                 _logger.error(product_attr)
                                 _logger.error(p_attr_val)
                                 exist = self.env['product.template.attribute.line'].sudo().create({
@@ -462,7 +463,7 @@ class Product(models.Model):
                             else:
                                 exist.sudo().write({
                                     'attribute_id': product_attr.id,
-                                    'value_ids': [(6, 0, p_attr_val)],
+                                    'value_ids': [(6, 0, [p_a for p_a in p_attr_val if p_a])],
                                     'product_tmpl_id': product.id
                                 })
 
