@@ -406,15 +406,16 @@ class Product(models.Model):
                 else:
                     write_tag_value = existing_tag.sudo().write(dict_value)
                     p_tags.append(existing_tag.id)
-
+        _logger.error('///////////////')
         product = self.env['product.template'].sudo().search([('wooc_id', '=', p_item['id']), ('woocomm_instance_id', '=', wooc_instance.id)],limit=1)
+        _logger.error(f'///////////////. product {product}')
 
         if not product:
             product = self.env['product.template'].sudo().create(dict_p)
         else:
             product.sudo().write(dict_p)
 
-        product.woocomm_tag_ids = [(4, val) for val in p_tags]
+        product.sudo().woocomm_tag_ids = [(4, val) for val in p_tags]
 
         self.env.cr.commit()
 

@@ -137,22 +137,19 @@ class Main(http.Controller):
             _logger.error(f'params, url ===  {params}. {url} {wooc_instance.display_name} {wooc_instance}')
             
 
-            try:
-                woo_api = API(
-                    url=wooc_instance.shop_url,
-                    consumer_key=wooc_instance.wooc_consumer_key,
-                    consumer_secret=wooc_instance.wooc_consumer_secret,
-                    wp_api=True,
-                    version=wooc_instance.wooc_api_version
-                )
-                product = woo_api.get(url, params=params)
-                product_data_item = product.json()
-                _logger.error(f'product ===  {product} . {product_data_item}')
-                request.env['product.template'].sudo().create_product(product_data_item[0], wooc_instance)
+            woo_api = API(
+                url=wooc_instance.shop_url,
+                consumer_key=wooc_instance.wooc_consumer_key,
+                consumer_secret=wooc_instance.wooc_consumer_secret,
+                wp_api=True,
+                version=wooc_instance.wooc_api_version
+            )
+            product = woo_api.get(url, params=params)
+            product_data_item = product.json()
+            _logger.error(f'product ===  {product} . {product_data_item}')
+            request.env['product.template'].sudo().create_product(product_data_item[0], wooc_instance)
 
-                return {'status': 'success', 'message': 'Product processed successfully'}
-            except Exception as error:
-                raise UserError(_("Please check your connection and try again"))
+            return {'status': 'success', 'message': 'Product processed successfully'}
 
 
             # # Check if the product already exists
@@ -169,7 +166,7 @@ class Main(http.Controller):
             #     _logger.info(f"Creating product with WooCommerce ID {product_data['id']}")
             #     request.env['product.template'].sudo().create(self._prepare_product_vals(product_data, woocomm_instance_id))
 
-            return {'status': 'success', 'message': 'Product processed successfully'}
+            # return {'status': 'success', 'message': 'Product processed successfully'}
         except Exception as e:
             _logger.error(f"Error processing webhook: {e}")
             return {'status': 'error', 'message': str(e)}
