@@ -440,8 +440,9 @@ class Product(models.Model):
                     self.env['product.attribute'].sudo().create_attribute_terms(product_attr, wooc_instance)
 
                     for value in attr['options']:
+                        _logger.error(f'value... {value}')
                         existing_attr_value = self.env['product.attribute.value'].sudo().search(
-                            [('name', 'in', attr['options']),('woocomm_instance_id', '=', wooc_instance.id), '|', ('attribute_id', '=', product_attr.id),  ('woocomm_attribute_id', '=', product_attr.id)])
+                            [('name', '=', value),('woocomm_instance_id', '=', wooc_instance.id), '|', ('attribute_id', '=', product_attr.id),  ('woocomm_attribute_id', '=', product_attr.id)])
                         _logger.error(f'existing_attr_value. {existing_attr_value}')
                         p_attr_val.append(existing_attr_value.id)
 
