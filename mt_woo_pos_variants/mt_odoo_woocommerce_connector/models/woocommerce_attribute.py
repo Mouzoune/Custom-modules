@@ -105,6 +105,8 @@ class ProductAttribute(models.Model):
             #     continue
             
             p_attr = self.create_attribute( attr_item, wooc_instance)
+            _logger.error(f"attr_item.  {attr_item}  p_attr. {p_attr}")
+
             self.create_attribute_terms(p_attr, wooc_instance)
 
             self.env.cr.commit()
@@ -114,8 +116,8 @@ class ProductAttribute(models.Model):
 
         dict_attr = {}
         exist_attr = self.env['product.attribute'].sudo().search(
-            ['|', ('wooc_id', '=', attr['id']),
-                ('woocomm_attr_slug', '=', attr['slug']), ('woocomm_instance_id', '=', wooc_instance.id)], limit=1)
+            [('woocomm_instance_id', '=', wooc_instance.id), '|', ('wooc_id', '=', attr['id']),
+                ('woocomm_attr_slug', '=', attr['slug'])], limit=1)
 
         dict_attr['wooc_id'] = attr['id'] if attr['id'] else ''
         dict_attr['woocomm_attr_slug'] = attr['slug'] if attr['slug'] else ''
@@ -134,6 +136,7 @@ class ProductAttribute(models.Model):
     def create_attribute_terms(self, attr, wooc_instance):
         woo_api = self.init_wc_api(wooc_instance)
         attr_id = attr.wooc_id
+        _logger.error(f"MMM.  {attr}  {attr_id}")
         wc_attr_terms = woo_api.get("products/attributes/%s/terms"%attr_id,params={'orderby': 'id', 'order': 'asc','per_page': 10000,})
 
         if wc_attr_terms.status_code == 200:
