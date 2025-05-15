@@ -144,7 +144,7 @@ class ProductAttribute(models.Model):
                     _logger.info('\n\n\n\nname: -- %s -- attr id: -- %s \n\n\n\n\n' % (value["name"],attr_id))
 
                     existing_attr_value = self.env['product.attribute.value'].sudo().search(
-                        [('name', '=', value["name"]), ('woocomm_instance_id', '=', wooc_instance.id), "|", ('wooc_id', '=', value["id"]), ('attribute_id', '=', attr.id)], limit=1)
+                        [('name', '=', value["name"]), ('woocomm_instance_id', '=', wooc_instance.id), ('wooc_id', '=', value["id"])], limit=1)
 
                     dict_value = {}
                     dict_value['wooc_id'] = value["id"]
