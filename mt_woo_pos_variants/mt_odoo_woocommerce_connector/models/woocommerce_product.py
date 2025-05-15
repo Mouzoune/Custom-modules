@@ -15,7 +15,7 @@ import time
 from woocommerce import API
 from urllib.request import urlopen
 from odoo.exceptions import UserError, MissingError
-from odoo import models, api, fields, _
+from odoo import models, api, fields, _, SUPERUSER_ID
 from odoo.tools import config
 from bs4 import BeautifulSoup
 config['limit_time_real'] = 10000000
@@ -413,11 +413,12 @@ class Product(models.Model):
         _logger.error(f'///////////////. product {product}')
 
         if not product:
-            product = self.env['product.template'].sudo().create(dict_p)
+            product = self.env['product.template'].with_user(SUPERUSER_ID).sudo().create(dict_p)
         else:
             _logger.error('///////////////---')
             
-            pp = product.sudo().write(dict_p)
+
+            pp = product.with_user(SUPERUSER_ID).sudo().write(dict_p)
             _logger.error('///////////////. pp. ===    {pp}')
 
         # product.sudo(). = [(4, val) for val in p_tags]
