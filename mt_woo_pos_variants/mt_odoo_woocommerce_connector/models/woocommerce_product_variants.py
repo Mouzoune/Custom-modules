@@ -337,9 +337,9 @@ class WooCommerceProductVariants(models.Model):
             # stock_quant.quantity = product_variant.qty_available = int(wc_variation.get('stock_quantity', False))
             # stock_quant.inventory_quantity = stock_quant.inventory_quantity_auto_apply = int(wc_variation.get('stock_quantity', False))
             # product_variant.action_update_quantity_on_hand()
-            self.env['stock.change.product.qty'].sudo().create({
-                'product_id': product_variant.id,
-                'product_tmpl_id': product_variant.product_tmpl_id.id,
-                'new_quantity': int(wc_variation.get('stock_quantity', False)),
-            })
+            # self.env['stock.change.product.qty'].sudo().create({
+            #     'product_id': product_variant.id,
+            #     'product_tmpl_id': product_variant.product_tmpl_id.id,
+            #     'new_quantity': int(wc_variation.get('stock_quantity', False)),
+            # })
         self.env.cr.commit()
