@@ -351,7 +351,7 @@ class WooCommerceProductVariants(models.Model):
         stock_quantity = int(wc_variation.get('stock_quantity'))
 
         _logger.error(f'wc_variation SUPERUSER_ID. {SUPERUSER_ID}')
-        _logger.error(f'wc_variation product_variant. {product_variant}.  product_variant_id {product_variant_id}')
+        _logger.error(f'wc_variation product_variant. {product_variant}.  product_variant_id {variant.product_variant_id}')
         _logger.error(f'wc_variation product_tmpl. {product_tmpl}')
 
         # if stock_quantity:
