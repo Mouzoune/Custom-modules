@@ -328,7 +328,12 @@ class WooCommerceProductVariants(models.Model):
 
         self.write({'wooc_stock_quantity' : str(wc_variation["stock_quantity"]),
                      'is_manage_stock' : wc_variation["manage_stock"],})
+        _logger.error(f'wc_variation stock_quantity. {wc_variation.get("stock_quantity", False)}')
+
+        
         if wc_variation.get('stock_quantity', False):
-            product_variant.qty_available = int(wc_variation.get('stock_quantity', False))
-            product_variant.action_update_quantity_on_hand()
+            stock_quant = self.env['stock.quant'].search([('product_id', '=', product_variant.id)])
+            _logger.error(f'stock_quant. {stock_quant}')
+            stock_quant.quantity = stock_quant.qty_available = product_variant.qty_available = int(wc_variation.get('stock_quantity', False))
+            stock_quant.action_update_quantity_on_hand()
         self.env.cr.commit()
