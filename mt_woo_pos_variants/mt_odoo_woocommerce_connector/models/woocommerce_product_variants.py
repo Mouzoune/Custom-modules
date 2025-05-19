@@ -350,16 +350,20 @@ class WooCommerceProductVariants(models.Model):
         #     }).action_apply_inventory()
         stock_quantity = int(wc_variation.get('stock_quantity'))
 
-        if stock_quantity:
+        _logger.error(f'wc_variation SUPERUSER_ID. {SUPERUSER_ID}')
+        _logger.error(f'wc_variation product_variant. {product_variant}')
+        _logger.error(f'wc_variation product_tmpl. {product_tmpl}')
 
-            InventoryWizard = self.env['stock.change.product.qty'].with_user(SUPERUSER_ID).sudo()
-            inventory_wizard = InventoryWizard.create({
-                'product_id': product_variant.id,
-                'product_tmpl_id': product_tmpl.id,
-                'new_quantity': stock_quantity,
-            })
-        # User has no right on quant, must raise an AccessError
-            inventory_wizard.change_product_qty()
+        # if stock_quantity:
+
+        #     InventoryWizard = self.env['stock.change.product.qty'].with_user(SUPERUSER_ID).sudo()
+        #     inventory_wizard = InventoryWizard.create({
+        #         'product_id': product_variant.id,
+        #         'product_tmpl_id': product_tmpl.id,
+        #         'new_quantity': stock_quantity,
+        #     })
+        # # User has no right on quant, must raise an AccessError
+        #     inventory_wizard.change_product_qty()
 
         # if wc_variation.get('stock_quantity', False):
         #     stock_quant = self.env['stock.quant'].sudo().search([('product_id', '=', product_variant.id)])
@@ -378,4 +382,4 @@ class WooCommerceProductVariants(models.Model):
         #     #     'product_tmpl_id': product_variant.product_tmpl_id.id,
         #     #     'new_quantity': int(wc_variation.get('stock_quantity', False)),
         #     # })
-        # self.env.cr.commit()
+        self.env.cr.commit()
