@@ -322,7 +322,7 @@ class WooCommerceProductVariants(models.Model):
         # if wc_variation.get('code') != 'woocommerce_variation_image_upload_error':
             # _logger.error(wc_variation)
 
-        product_variant = self.env['product.product'].sudo().search([('product_tmpl_id', '=', product_tmpl.id), ('woocomm_variant_id', '=', variation_id), ('woocomm_instance_id', '=', self.woocomm_instance_id.id)])
+        product_variant_id = product_variant = self.env['product.product'].sudo().search([('product_tmpl_id', '=', product_tmpl.id), ('woocomm_variant_id', '=', variation_id), ('woocomm_instance_id', '=', self.woocomm_instance_id.id)])
         product_variant.write({ 'woocomm_regular_price' : float(wc_variation["regular_price"]) if wc_variation["regular_price"] else 0,
                                 'woocomm_sale_price' : float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0})
 
@@ -351,7 +351,7 @@ class WooCommerceProductVariants(models.Model):
         stock_quantity = int(wc_variation.get('stock_quantity'))
 
         _logger.error(f'wc_variation SUPERUSER_ID. {SUPERUSER_ID}')
-        _logger.error(f'wc_variation product_variant. {product_variant}')
+        _logger.error(f'wc_variation product_variant. {product_variant}.  product_variant_id {product_variant_id}')
         _logger.error(f'wc_variation product_tmpl. {product_tmpl}')
 
         # if stock_quantity:
