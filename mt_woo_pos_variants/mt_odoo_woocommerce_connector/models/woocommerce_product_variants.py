@@ -378,4 +378,4 @@ class WooCommerceProductVariants(models.Model):
         #     #     'product_tmpl_id': product_variant.product_tmpl_id.id,
         #     #     'new_quantity': int(wc_variation.get('stock_quantity', False)),
         #     # })
-        self.env.cr.commit()
+        # self.env.cr.commit()
