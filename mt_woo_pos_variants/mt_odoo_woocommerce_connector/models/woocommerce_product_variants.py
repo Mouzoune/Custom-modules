@@ -335,7 +335,7 @@ class WooCommerceProductVariants(models.Model):
             stock_quant = self.env['stock.quant'].search([('product_id', '=', product_variant.id)])
             _logger.error(f'stock_quant. {stock_quant}')
             self.env['stock.quant'].sudo().with_context(inventory_mode=True).create({
-                'product_id': product.id,
+                'product_id': product_variant.id,
                 'inventory_quantity': int(wc_variation.get('stock_quantity', False)),
                 'location_id': 8,
                 }).action_apply_inventory()
