@@ -332,14 +332,15 @@ class WooCommerceProductVariants(models.Model):
 
         
         if wc_variation.get('stock_quantity', False):
-            stock_quant = self.env['stock.quant'].search([('product_id', '=', product_variant.id)])
+            stock_quant = self.env['stock.quant'].sudo().search([('product_id', '=', product_variant.id)])
             _logger.error(f'stock_quant. {stock_quant}')
-            self.env['stock.quant'].sudo().with_context(inventory_mode=True).create({
-                'product_id': product_variant.id,
-                'inventory_quantity': int(wc_variation.get('stock_quantity', False)),
-                'location_id': 8,
-                }).action_apply_inventory()
-            # stock_quant.quantity = product_variant.qty_available = int(wc_variation.get('stock_quantity', False))
+            # self.env['stock.quant'].sudo().create({
+            #     'product_id': product_variant.id,
+            #     'inventory_quantity': int(wc_variation.get('stock_quantity', False)),
+            #     'location_id': 8,
+            #     }).action_apply_inventory()
+            stock_quant.inventory_quantity = stock_quant.quantity = product_variant.qty_available = int(wc_variation.get('stock_quantity', False))
+            stock_quant.action_apply_inventory()
             # stock_quant.inventory_quantity = stock_quant.inventory_quantity_auto_apply = int(wc_variation.get('stock_quantity', False))
             # product_variant.action_update_quantity_on_hand()
             # self.env['stock.change.product.qty'].sudo().create({
