@@ -350,20 +350,20 @@ class WooCommerceProductVariants(models.Model):
         #     }).action_apply_inventory()
         stock_quantity = int(wc_variation.get('stock_quantity'))
 
-        _logger.error(f'wc_variation SUPERUSER_ID. {SUPERUSER_ID}')
-        _logger.error(f'wc_variation product_variant. {product_variant}.  product_variant_id {variant.product_variant_id}')
-        _logger.error(f'wc_variation product_tmpl. {product_tmpl}')
+        # _logger.error(f'wc_variation SUPERUSER_ID. {SUPERUSER_ID}')
+        # _logger.error(f'wc_variation product_variant. {product_variant}.  product_variant_id {variant.product_variant_id}')
+        # _logger.error(f'wc_variation product_tmpl. {product_tmpl}')
 
-        # if stock_quantity:
+        if stock_quantity:
 
-        #     InventoryWizard = self.env['stock.change.product.qty'].with_user(SUPERUSER_ID).sudo()
-        #     inventory_wizard = InventoryWizard.create({
-        #         'product_id': product_variant.id,
-        #         'product_tmpl_id': product_tmpl.id,
-        #         'new_quantity': stock_quantity,
-        #     })
-        # # User has no right on quant, must raise an AccessError
-        #     inventory_wizard.change_product_qty()
+            InventoryWizard = self.env['stock.change.product.qty'].with_user(SUPERUSER_ID).sudo()
+            inventory_wizard = InventoryWizard.create({
+                'product_id': variant.product_variant_id.id,
+                'product_tmpl_id': product_tmpl.id,
+                'new_quantity': stock_quantity,
+            })
+        # User has no right on quant, must raise an AccessError
+            inventory_wizard.change_product_qty()
 
         # if wc_variation.get('stock_quantity', False):
         #     stock_quant = self.env['stock.quant'].sudo().search([('product_id', '=', product_variant.id)])
