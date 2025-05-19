@@ -352,7 +352,7 @@ class WooCommerceProductVariants(models.Model):
 
         if stock_quantity:
 
-            InventoryWizard = self.env['stock.change.product.qty'].with_user(self.user_stock_user).sudo()
+            InventoryWizard = self.env['stock.change.product.qty'].with_user(SUPERUSER_ID).sudo()
             inventory_wizard = InventoryWizard.create({
                 'product_id': product_variant.id,
                 'product_tmpl_id': product_tmpl.id,
