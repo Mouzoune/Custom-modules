@@ -3,7 +3,7 @@ import logging
 
 from woocommerce import API
 from odoo.exceptions import UserError, MissingError
-from odoo import models, api, fields, _
+from odoo import models, api, fields, SUPERUSER_ID, _
 from odoo.tools import config
 from bs4 import BeautifulSoup
 config['limit_time_real'] = 10000000
@@ -334,11 +334,11 @@ class WooCommerceProductVariants(models.Model):
         if wc_variation.get('stock_quantity', False):
             stock_quant = self.env['stock.quant'].sudo().search([('product_id', '=', product_variant.id)])
             _logger.error(f'stock_quant. {stock_quant}')
-            # self.env['stock.quant'].sudo().create({
-            #     'product_id': product_variant.id,
-            #     'inventory_quantity': int(wc_variation.get('stock_quantity', False)),
-            #     'location_id': 8,
-            #     }).action_apply_inventory()
+            self.env['stock.quant'].with_user(SUPERUSER_ID).sudo().with_context(inventory_mode=True,).create({
+                'product_id': product_variant.id,
+                'inventory_quantity': int(wc_variation.get('stock_quantity', False)),
+                'location_id': 8,
+                }).action_apply_inventory()
             stock_quant.inventory_quantity = stock_quant.quantity = product_variant.qty_available = int(wc_variation.get('stock_quantity', False))
             stock_quant.action_apply_inventory()
             # stock_quant.inventory_quantity = stock_quant.inventory_quantity_auto_apply = int(wc_variation.get('stock_quantity', False))
