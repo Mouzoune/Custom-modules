@@ -329,23 +329,36 @@ class WooCommerceProductVariants(models.Model):
         self.write({'wooc_stock_quantity' : str(wc_variation["stock_quantity"]),
                      'is_manage_stock' : wc_variation["manage_stock"],})
         _logger.error(f'wc_variation stock_quantity. {wc_variation.get("stock_quantity", False)}')
-
-        
         if wc_variation.get('stock_quantity', False):
-            stock_quant = self.env['stock.quant'].sudo().search([('product_id', '=', product_variant.id)])
-            _logger.error(f'stock_quant. {stock_quant}')
-            self.env['stock.quant'].with_user(SUPERUSER_ID).sudo().with_context(inventory_mode=True,).create({
-                'product_id': product_variant.id,
-                'inventory_quantity': int(wc_variation.get('stock_quantity', False)),
-                'location_id': 8,
-                }).action_apply_inventory()
-            stock_quant.inventory_quantity = stock_quant.quantity = product_variant.qty_available = int(wc_variation.get('stock_quantity', False))
+            stock_quantity = int(wc_variation.get('stock_quantity'))
+            stock_quant = self.env['stock.quant'].sudo().search([('product_id', '=', product_variant.id), ('location_id', '=', 8)], limit=1)
+            if not stock_quant:
+                stock_quant = self.env['stock.quant'].with_user(SUPERUSER_ID).sudo().with_context(inventory_mode=True).create({
+                    'product_id': product_variant.id,
+                    'inventory_quantity': stock_quantity,
+                    'location_id': 8,
+                })
+            else:
+                stock_quant.inventory_quantity = stock_quantity
+
             stock_quant.action_apply_inventory()
-            # stock_quant.inventory_quantity = stock_quant.inventory_quantity_auto_apply = int(wc_variation.get('stock_quantity', False))
-            # product_variant.action_update_quantity_on_hand()
-            # self.env['stock.change.product.qty'].sudo().create({
-            #     'product_id': product_variant.id,
-            #     'product_tmpl_id': product_variant.product_tmpl_id.id,
-            #     'new_quantity': int(wc_variation.get('stock_quantity', False)),
-            # })
+            product_variant.qty_available = stock_quantity
+
+        # if wc_variation.get('stock_quantity', False):
+        #     stock_quant = self.env['stock.quant'].sudo().search([('product_id', '=', product_variant.id)])
+        #     _logger.error(f'stock_quant. {stock_quant}')
+        #     self.env['stock.quant'].with_user(SUPERUSER_ID).sudo().with_context(inventory_mode=True,).create({
+        #         'product_id': product_variant.id,
+        #         'inventory_quantity': int(wc_variation.get('stock_quantity', False)),
+        #         'location_id': 8,
+        #         }).action_apply_inventory()
+        #     stock_quant.inventory_quantity = stock_quant.quantity = product_variant.qty_available = int(wc_variation.get('stock_quantity', False))
+        #     stock_quant.action_apply_inventory()
+        #     # stock_quant.inventory_quantity = stock_quant.inventory_quantity_auto_apply = int(wc_variation.get('stock_quantity', False))
+        #     # product_variant.action_update_quantity_on_hand()
+        #     # self.env['stock.change.product.qty'].sudo().create({
+        #     #     'product_id': product_variant.id,
+        #     #     'product_tmpl_id': product_variant.product_tmpl_id.id,
+        #     #     'new_quantity': int(wc_variation.get('stock_quantity', False)),
+        #     # })
         self.env.cr.commit()
