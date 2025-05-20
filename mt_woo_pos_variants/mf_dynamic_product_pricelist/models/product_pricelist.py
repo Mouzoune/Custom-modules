@@ -128,7 +128,7 @@ class SaleOrder(models.Model):
         _logger.error("Sale Order %s with quantity ")
         if vals.get('order_line', False):
             for order in self:
-                if hasattr(order, 'woocomm_instance_id') and not order.woocomm_instance_id:
+                if not order.woocomm_instance_id:
                     order.button_compute_custom_prices()
         return res
 
@@ -136,8 +136,8 @@ class SaleOrder(models.Model):
         res = super(SaleOrder, self).write(vals)
         if vals.get('order_line', False):
             for order in self:
-                # if hasattr(order, 'woocomm_instance_id') and not order.woocomm_instance_id:
-                order.button_compute_custom_prices()
+                if not order.woocomm_instance_id:
+                    order.button_compute_custom_prices()
         return res
 
     def button_compute_custom_prices(self):
