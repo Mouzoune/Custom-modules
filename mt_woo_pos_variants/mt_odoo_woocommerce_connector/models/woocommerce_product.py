@@ -48,7 +48,7 @@ class ProductProduct(models.Model):
     def _compute_product_price_extra(self):
         for product in self:
             if product.woocomm_variant_id:
-                product.price_extra = product.woocomm_regular_price - product.list_price # to remove the base price if the product is from WooCommerce
+                product.price_extra = 0 # to remove the base price if the product is from WooCommerce
             else:
                 product.price_extra = sum(product.product_template_attribute_value_ids.mapped('price_extra'))
 
