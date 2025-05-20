@@ -265,16 +265,18 @@ class ProductPriceListItem(models.Model):
         required=True,
         help="Pricelist Item applicable on selected option")
 
-    #=== COMPUTE METHODS ===#
+    #=== ONCHANGE METHODS ===#
     @api.onchange('compute_pricing')
     def onchange_compute_pricing(self):
         self.compute_price = self.compute_pricing
 
-
-    #=== COMPUTE METHODS ===#
     @api.onchange('applied_on_categ')
     def onchange_applied_on_categ(self):
         self.applied_on = self.applied_on_categ
+
+    @api.onchange('categ_ids')
+    def onchange_categ_ids(self):
+        self.categ_id = self.categ_ids[0].id if self.categ_ids else False
 
     @api.depends('applied_on', 'categ_id', 'product_tmpl_id', 'product_id', 'compute_price', 'fixed_price', \
         'pricelist_id', 'percent_price', 'price_discount', 'price_surcharge')
