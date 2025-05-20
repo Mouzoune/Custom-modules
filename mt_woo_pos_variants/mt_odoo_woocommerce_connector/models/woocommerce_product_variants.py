@@ -332,8 +332,8 @@ class WooCommerceProductVariants(models.Model):
 
         self.write({'wooc_stock_quantity' : str(wc_variation["stock_quantity"]),
                      'is_manage_stock' : wc_variation["manage_stock"],
-                     'wooc_regular_price': float(wc_variation["regular_price"]) if wc_variation["regular_price"] else 0,
-                    'wooc_sale_price': float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0,
+                    #  'wooc_regular_price': float(wc_variation["regular_price"]) if wc_variation["regular_price"] else 0,
+                    # 'wooc_sale_price': float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0,
                      
                      })
         _logger.error(f'wc_variation stock_quantity. {wc_variation.get("stock_quantity", False)}')
