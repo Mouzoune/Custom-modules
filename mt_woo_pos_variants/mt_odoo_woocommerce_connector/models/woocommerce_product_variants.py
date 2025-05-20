@@ -326,12 +326,12 @@ class WooCommerceProductVariants(models.Model):
         product_variant_id = product_variant = self.env['product.product'].sudo().search([('product_tmpl_id', '=', product_tmpl.id), ('woocomm_variant_id', '=', variation_id), ('woocomm_instance_id', '=', self.woocomm_instance_id.id)])
         product_product_id.write({ 'woocomm_regular_price' : float(wc_variation["regular_price"]) if wc_variation["regular_price"] else 0,
                                 'lst_price' : float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0,
-                                'list_price' : float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0,
+                                # 'list_price' : float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0,
                                 'woocomm_sale_price' : float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0})
         variant.product_variant_id.write({ 'woocomm_regular_price' : float(wc_variation["regular_price"]) if wc_variation["regular_price"] else 0,
                                 'woocomm_sale_price' : float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0,
                                 'lst_price' : float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0,
-                                'list_price' : float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0,
+                                # 'list_price' : float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0,
 
                                 })
 
