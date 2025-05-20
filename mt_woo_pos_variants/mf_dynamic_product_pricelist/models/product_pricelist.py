@@ -181,7 +181,7 @@ class SaleOrder(models.Model):
                             base_price = line.product_id.standard_price
 
                         if rule.compute_price == 'fixed':
-                            line.price_unit = rule.fixed_price
+                            line.price_unit = line.product_id.lst_price - rule.fixed_price if line.product_id.lst_price else 0
 
                         elif rule.compute_price == 'percentage':
                             line.price_unit = base_price * (1 - (rule.percent_price / 100.0))
