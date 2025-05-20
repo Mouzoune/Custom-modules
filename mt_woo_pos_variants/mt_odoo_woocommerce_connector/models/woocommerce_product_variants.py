@@ -285,6 +285,7 @@ class WooCommerceProductVariants(models.Model):
         variation_id = variant.wooc_id
         product_tmpl = self.product_template_id
         product_wooc_id = product_tmpl.wooc_id
+        product_product_id = variant.product_variant_id
         with_image, src = False, ''
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         if variant.file_name:
@@ -323,12 +324,15 @@ class WooCommerceProductVariants(models.Model):
             # _logger.error(wc_variation)
 
         product_variant_id = product_variant = self.env['product.product'].sudo().search([('product_tmpl_id', '=', product_tmpl.id), ('woocomm_variant_id', '=', variation_id), ('woocomm_instance_id', '=', self.woocomm_instance_id.id)])
-        product_variant.write({ 'woocomm_regular_price' : float(wc_variation["regular_price"]) if wc_variation["regular_price"] else 0,
+        product_product_id.write({ 'woocomm_regular_price' : float(wc_variation["regular_price"]) if wc_variation["regular_price"] else 0,
                                 'lst_price' : float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0,
+                                'list_price' : float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0,
                                 'woocomm_sale_price' : float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0})
         variant.product_variant_id.write({ 'woocomm_regular_price' : float(wc_variation["regular_price"]) if wc_variation["regular_price"] else 0,
                                 'woocomm_sale_price' : float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0,
                                 'lst_price' : float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0,
+                                'list_price' : float(wc_variation["sale_price"]) if wc_variation["sale_price"] else 0,
+
                                 })
 
         self.write({'wooc_stock_quantity' : str(wc_variation["stock_quantity"]),
