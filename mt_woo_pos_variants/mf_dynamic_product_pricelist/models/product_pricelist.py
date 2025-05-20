@@ -54,7 +54,6 @@ class ProductCatalogMixin(models.AbstractModel):
         product_data = self._get_product_catalog_order_data(products, **kwargs)
         for product_id, data in product_data.items():
             order_line_info[product_id] = {**default_data, **data}
-        _logger.error("order_line_info %s   ", order_line_info)
         return order_line_info
 
 class SaleOrder(models.Model):
@@ -72,7 +71,6 @@ class SaleOrder(models.Model):
         )
         res = super()._get_product_catalog_order_data(products, **kwargs)
         for product in products:
-            _logger.error("Product %s with quantity ", res[product.id]['price'])
             if product.woocomm_regular_price or product.woocomm_sale_price or product.list_price:
                 res[product.id]['price'] = product.lst_price
             else:
@@ -94,7 +92,6 @@ class SaleOrder(models.Model):
         :rtype: float
         """
         sol = self.order_line.filtered(lambda line: line.product_id.id == product_id)
-        _logger.error("Product %s with quantities ============================= ", sol)
         if sol:
             if quantity != 0:
                 sol.product_uom_qty = quantity
@@ -123,9 +120,6 @@ class SaleOrder(models.Model):
     @api.model
     def create(self, vals):
         res = super(SaleOrder, self).create(vals)
-        _logger.error("Sale Order %s with quantity ")
-        _logger.error(vals)
-        _logger.error("Sale Order %s with quantity ")
         if vals.get('order_line', False):
             for order in self:
                 if not order.woocomm_instance_id:
