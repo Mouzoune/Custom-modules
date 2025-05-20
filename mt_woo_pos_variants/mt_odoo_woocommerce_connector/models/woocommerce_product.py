@@ -44,7 +44,28 @@ class ProductProduct(models.Model):
     woocomm_variant_ids = fields.One2many("woocommerce.product.variant", "product_variant_id")
     #image_1920_filename = fields.Char()
 
-       
+
+    @api.depends('list_price', 'price_extra')
+    @api.depends_context('uom')
+    def _compute_product_lst_price(self):
+        to_uom = None
+        if 'uom' in self._context:
+            to_uom = self.env['uom.uom'].browse(self._context['uom'])
+
+        for product in self:
+            if to_uom:
+                list_price = product.uom_id._compute_price(product.list_price, to_uom)
+            else:
+                list_price = product.list_price
+            product.lst_price = list_price + product.price_extra
+
+            if product.woocomm_regular_price or product.woocomm_sale_price:
+                if product.woocomm_regular_price and not product.woocomm_sale_price:
+                    product.lst_price = int(product.woocomm_regular_price)
+                if product.woocomm_sale_price:
+                    product.lst_price = int(product.woocomm_sale_price)
+
+                
     def _compute_product_price_extra(self):
         for product in self:
             if product.woocomm_variant_id:
