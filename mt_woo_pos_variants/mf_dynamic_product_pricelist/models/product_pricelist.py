@@ -145,8 +145,9 @@ class SaleOrder(models.Model):
                 category = line.product_id.categ_id
                 if category:
                     lines_by_category.setdefault(category.id, []).append(line)
+                    
             order_date = order.date_order.date() if order.date_order else fields.Date.today()
-
+            
             # Filter rules with multiple categories
             applicable_rules = order.pricelist_id.item_ids.filtered(
                 lambda r: r.categ_ids and (
@@ -154,6 +155,10 @@ class SaleOrder(models.Model):
                         (not r.date_end or r.date_end.date() >= order_date)
                 )
             )
+
+            # Sort rules by min_quantity in descending order to prioritize higher quantities
+            applicable_rules = applicable_rules.sorted(key=lambda r: r.min_quantity, reverse=True)
+            
             # for rule in rules:
             for rule in applicable_rules:
                 # Find lines matching any category in the rule
@@ -167,42 +172,43 @@ class SaleOrder(models.Model):
                             total_qty += line.product_uom_qty
 
                 # Apply the rule to the matching lines
-                for line in matching_lines:
-                    base_price = line.product_id.lst_price  # default to list price
-                    if rule.base == 'list_price':
-                        base_price = line.product_id.lst_price
-                    elif rule.base == 'standard_price':
-                        base_price = line.product_id.standard_price
+                if total_qty <= rule.min_quantity:
+                    for line in matching_lines:
+                        base_price = line.product_id.lst_price  # default to list price
+                        if rule.base == 'list_price':
+                            base_price = line.product_id.lst_price
+                        elif rule.base == 'standard_price':
+                            base_price = line.product_id.standard_price
 
-                    if rule.compute_price == 'fixed':
-                        line.price_unit = rule.fixed_price
+                        if rule.compute_price == 'fixed':
+                            line.price_unit = rule.fixed_price
 
-                    elif rule.compute_price == 'percentage':
-                        line.price_unit = base_price * (1 - (rule.percent_price / 100.0))
+                        elif rule.compute_price == 'percentage':
+                            line.price_unit = base_price * (1 - (rule.percent_price / 100.0))
 
-                    elif rule.compute_price == 'formula':
-                        price = base_price
+                        elif rule.compute_price == 'formula':
+                            price = base_price
 
-                        # Apply discount
-                        if rule.price_discount:
-                            price = price * (1 - rule.price_discount)
+                            # Apply discount
+                            if rule.price_discount:
+                                price = price * (1 - rule.price_discount)
 
-                        # Apply rounding
-                        if rule.price_round:
-                            price = round(price / rule.price_round) * rule.price_round
+                            # Apply rounding
+                            if rule.price_round:
+                                price = round(price / rule.price_round) * rule.price_round
 
-                        # Apply surcharge
-                        price += rule.price_surcharge
+                            # Apply surcharge
+                            price += rule.price_surcharge
 
-                        # Enforce min/max margins
-                        if rule.price_min_margin:
-                            price = max(price, base_price + rule.price_min_margin)
-                        if rule.price_max_margin:
-                            price = min(price, base_price + rule.price_max_margin)
+                            # Enforce min/max margins
+                            if rule.price_min_margin:
+                                price = max(price, base_price + rule.price_min_margin)
+                            if rule.price_max_margin:
+                                price = min(price, base_price + rule.price_max_margin)
 
-                        line.price_unit = price
-                    if total_qty < rule.min_quantity:
-                        line.price_unit = line.product_id.lst_price
+                            line.price_unit = price
+                        if total_qty < rule.min_quantity:
+                            line.price_unit = line.product_id.lst_price
 
 
 class ProductPriceListItem(models.Model):
@@ -346,77 +352,6 @@ class ProductPriceList(models.Model):
         string='Anchor Field',
         help='Specify the field name after which this pricelist should appear (for custom position)'
     )
-
-    def button_compute_custom_prices(self):
-        for pricelist in self:
-            # Cache original prices if needed
-            lines_by_category = {}
-
-            # Build mapping of category_id -> products
-            for item in pricelist.item_ids:
-                for product in self._get_products_for_pricelist_item(item):
-                    category = product.categ_id
-                    if category:
-                        lines_by_category.setdefault(category.id, []).append(product)
-
-            # Filter rules with multiple categories
-            applicable_rules = pricelist.item_ids.filtered(
-                lambda r: r.categ_ids and (
-                        (not r.date_start or r.date_start.date() <= fields.Date.today()) and
-                        (not r.date_end or r.date_end.date() >= fields.Date.today())
-                )
-            )
-
-            for rule in applicable_rules:
-                # Find products matching any category in the rule
-                matching_products = []
-                total_qty = 0.0
-
-                for categ in rule.categ_ids:
-                    for product in lines_by_category.get(categ.id, []):
-                        if product not in matching_products:
-                            matching_products.append(product)
-                            total_qty += 1.0  # Assuming quantity is 1 for simplicity
-
-                # Apply the rule to the matching products
-                for product in matching_products:
-                    base_price = product.lst_price  # default to list price
-                    if rule.base == 'list_price':
-                        base_price = product.lst_price
-                    elif rule.base == 'standard_price':
-                        base_price = product.standard_price
-
-                    if rule.compute_price == 'fixed':
-                        product.write({'price': rule.fixed_price})
-
-                    elif rule.compute_price == 'percentage':
-                        product.write({'price': base_price * (1 - (rule.percent_price / 100.0))})
-
-                    elif rule.compute_price == 'formula':
-                        price = base_price
-
-                        # Apply discount
-                        if rule.price_discount:
-                            price = price * (1 - rule.price_discount)
-
-                        # Apply rounding
-                        if rule.price_round:
-                            price = round(price / rule.price_round) * rule.price_round
-
-                        # Apply surcharge
-                        price += rule.price_surcharge
-
-                        # Enforce min/max margins
-                        if rule.price_min_margin:
-                            price = max(price, base_price + rule.price_min_margin)
-                        if rule.price_max_margin:
-                            price = min(price, base_price + rule.price_max_margin)
-
-                        product.write({'price': price})
-
-                    if total_qty < rule.min_quantity:
-                        product.write({'price': product.lst_price})
-
 
     def _get_products_for_pricelist_item(self, item):
         """Helper method to get products based on pricelist item scope"""
