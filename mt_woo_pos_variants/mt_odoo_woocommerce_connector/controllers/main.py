@@ -129,12 +129,14 @@ class Main(http.Controller):
             _logger.info(f"Webhook payload request.httprequest..Topic: {request.httprequest.headers.get('X-Wc-Webhook-Topic')}")
             _logger.info(f"Webhook payload request.httprequest..Resource: {request.httprequest.headers.get('X-Wc-Webhook-Resource')}")
             _logger.info(f"Webhook payload received: {product_data}") 
-            woocomm_instance_id = request.env['woocommerce.instance'].search([], limit=1, order='id asc')
+            source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
+            wooc_instance = request.env['woocommerce.instance'].search([]).filtered(lambda x: source_path in x.shop_url)
             # Extract product data from the payload
             # product_data = payload
             # if not product_data:
             #     return {'status': 'error', 'message': 'No product data found in payload'}
-            wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
+            if not wooc_instance:
+                wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
 
             # woo_api = self.init_wc_api(wooc_instance)
             product_id = product_data['id']
