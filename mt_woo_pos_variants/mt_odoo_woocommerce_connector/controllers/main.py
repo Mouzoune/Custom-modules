@@ -124,7 +124,12 @@ class Main(http.Controller):
         try:
             # Parse the JSON payload
             product_data = json.loads(request.httprequest.data)
-            _logger.info(f"Webhook payload received: {product_data}")
+            _logger.info(f"Webhook payload request.httprequest: {request.httprequest}")
+            _logger.info(f"Webhook payload request.httprequest..headers: {request.httprequest.headers}")
+            _logger.info(f"Webhook payload request.httprequest..host: {request.httprequest.host}")
+            _logger.info(f"Webhook payload request.httprequest..path: {request.httprequest.path}")
+            _logger.info(f"Webhook payload request.httprequest..url_root: {request.httprequest.url_root}")
+            _logger.info(f"Webhook payload received: {product_data}") 
             woocomm_instance_id = request.env['woocommerce.instance'].search([], limit=1, order='id asc')
             # Extract product data from the payload
             # product_data = payload
