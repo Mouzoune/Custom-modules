@@ -220,7 +220,11 @@ class Product(models.Model):
 
     def write(self, values):
         ctx = dict(self.env.context)
-        if values.get('woocommerce_state_product_visibility', False):
+
+        _logger.error(f'self env context =====> {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
+        if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+            _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
+        if values.get('woocommerce_state_product_visibility', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             if values.get('woocommerce_state_product_visibility') != 'publish':
                 ctx['status'] = 'draft'
                 values['is_product_active'] = False
@@ -234,7 +238,7 @@ class Product(models.Model):
         super().write(values)
         self.env.cr.commit()
 
-        if values.get('image_1920_filename', False):
+        if values.get('image_1920_filename', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             # woocomm_instance_id = self.env['woocommerce.instance'].search([], limit=1, order='id desc')
             # wooc_instance = self.env['woocommerce.instance'].search([], limit=1, order='id desc')
             woocomm_instance_id = self.woocomm_instance_id
@@ -366,6 +370,13 @@ class Product(models.Model):
 
 
     def create_product(self, p_item, wooc_instance):
+        _logger.error(f'self env context =====> {self.env.context}')
+        _logger.error(f'self env context =====> {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
+        if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+            _logger.error(f'Return from if self.env.context.get dont_send_data_to_wooc_from_write_method')
+            product = self.env['product.template'].search([], limit=1)
+            product.write({'name': product.name})
+            return True
         _logger.error(f'create_product  == {p_item["name"]}.   {wooc_instance.id}. {wooc_instance.display_name}')
 
         p_tags = []

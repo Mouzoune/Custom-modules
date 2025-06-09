@@ -19,7 +19,8 @@ from woocommerce import API
 
 class Main(http.Controller):
 
-    @http.route('/webhook/wp/<string:wc_action>/<int:wc_id>', type='json', auth='public', methods=['POST'], csrf=False)
+#    @http.route('/webhook/wp/<string:wc_action>/<int:wc_id>', type='json', auth='public', methods=['POST'], csrf=False)
+    @http.route('/webhook/wp/<string:wc_action>/<int:wc_id>', type='http', auth='public', methods=['POST'], csrf=False)
     def webhook_order(self, wc_action, wc_id, **kwargs):
         payload = json.loads(request.httprequest.data)
         #company_must_create_orders_json = request.env.company.sudo().must_create_orders_json or {}
@@ -30,6 +31,8 @@ class Main(http.Controller):
         #request.env.company.sudo().must_create_orders_json = existed_must_create_orders_json_added
         #_logger.error(f'New record updated ID : {wc_id}  |  Action: {wc_action}   |   payload {payload}')
         # Perform your logic here
+        request.env['product.template'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create_product(2, 1)
+
         return {'status': 'success', 'message': 'Webhook received'}
 
     def import_product(self, wooc_instance, is_force_update=False):
