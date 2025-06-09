@@ -19,6 +19,15 @@ from woocommerce import API
 
 class Main(http.Controller):
 
+    '''
+        self env context =====> {'lang': 'fr_FR', 'tz': 'Africa/Casablanca', 'uid': 2, 'dont_send_data_to_wooc_from_write_method': True} 
+        self env context =====> True 
+        Return from if self.env.context.get dont_send_data_to_wooc_from_write_method 
+        self env context =====> True 
+        WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method
+
+    '''
+
     @http.route('/webhook/wp/<string:wc_action>/<int:wc_id>', type='http', auth='public', methods=['POST', 'GET'], csrf=False)
     def webhook_order(self, wc_action, wc_id, **kwargs):
         request.env['product.template'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create_product(2, 1)
