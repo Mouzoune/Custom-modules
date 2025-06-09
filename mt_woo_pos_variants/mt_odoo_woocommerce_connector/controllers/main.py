@@ -19,20 +19,9 @@ from woocommerce import API
 
 class Main(http.Controller):
 
-#    @http.route('/webhook/wp/<string:wc_action>/<int:wc_id>', type='json', auth='public', methods=['POST'], csrf=False)
     @http.route('/webhook/wp/<string:wc_action>/<int:wc_id>', type='http', auth='public', methods=['POST', 'GET'], csrf=False)
     def webhook_order(self, wc_action, wc_id, **kwargs):
-        payload = json.loads(request.httprequest.data)
-        #company_must_create_orders_json = request.env.company.sudo().must_create_orders_json or {}
-
-        #existed_must_create_orders_json = dict(company_must_create_orders_json) or {}
-        #existed_must_create_orders_json_added = {**existed_must_create_orders_json} if existed_must_create_orders_json else {}
-        #existed_must_create_orders_json_added[f"{wc_action}_{wc_id}"] = int(wc_id)
-        #request.env.company.sudo().must_create_orders_json = existed_must_create_orders_json_added
-        #_logger.error(f'New record updated ID : {wc_id}  |  Action: {wc_action}   |   payload {payload}')
-        # Perform your logic here
         request.env['product.template'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create_product(2, 1)
-
         return {'status': 'success', 'message': 'Webhook received'}
 
     def import_product(self, wooc_instance, is_force_update=False):
