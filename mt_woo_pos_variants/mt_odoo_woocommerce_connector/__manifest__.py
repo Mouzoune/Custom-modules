@@ -4,10 +4,10 @@
     'version': '1.0.0',
     'sequence': 6,
     'description': """Odoo WooCommerce Connector""",    
-    'author': 'Metclouds Technologies Pvt Ltd',
+    'author': 'Farid MOUZOUNE',
     'category': 'Sales',
-    'maintainer': 'Metclouds Technologies Pvt Ltd',
-    'website': 'https://www.metclouds.com',
+    'maintainer': 'Farid MOUZOUNE',
+    'website': 'https://mouzoune-resume.theworkpc.com/',
     'license': 'LGPL-3',
     'depends': ['base', 'web', 'sale_management', 'purchase', 'stock', 'contacts', 'delivery', 'hr_expense', 'point_of_sale'],
     'external_dependencies': {

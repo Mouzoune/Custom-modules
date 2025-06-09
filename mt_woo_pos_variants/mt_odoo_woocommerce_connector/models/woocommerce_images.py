@@ -75,7 +75,7 @@ class WooCommerceProductImages(models.Model):
                 is_position_update = True
                 self._cr.execute("""UPDATE woocommerce_product_image SET is_main_image = False WHERE product_template_id = '%s'""" % (self.product_template_id.id))
        
-        if vals.__contains__('product_image_variant_ids') and not is_import_image:
+        if vals.__contains__('product_image_variant_ids') and not is_import_image and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             # remove old variant image
 
             vals['is_image_synced'] = True

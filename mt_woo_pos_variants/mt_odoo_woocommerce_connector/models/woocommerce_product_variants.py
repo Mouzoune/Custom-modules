@@ -176,7 +176,7 @@ class StockQuant(models.Model):
         super().write(values)
 #        _logger.error(values)
 #        _logger.error(self.location_id.id)
-        if self.location_id.id == 8 and self.product_id.wooc_id and (values.get('inventory_quantity_auto_apply', False) or values.get('inventory_quantity_auto_apply', '') == 0) or (self.product_id.wooc_id and (values.get('quantity', '') == 0 or values.get('quantity', False)) and self.location_id.id == 8):
+        if self.location_id.id == 8 and not self.env.context.get("dont_send_data_to_wooc_from_write_method") and self.product_id.wooc_id and (values.get('inventory_quantity_auto_apply', False) or values.get('inventory_quantity_auto_apply', '') == 0) or (self.product_id.wooc_id and (values.get('quantity', '') == 0 or values.get('quantity', False)) and self.location_id.id == 8):
             #_logger.error(self.product_id.product_tmpl_id.variant_count_product_type)
             #_logger.error(f'woocomm product type  = {self.product_id.product_tmpl_id.woocomm_product_type}')
             _logger.error(f'\n\n Quantity changed values {values}')
@@ -246,7 +246,7 @@ class WooCommerceProductVariants(models.Model):
 
     def write(self, vals):
         
-        if vals.__contains__('wooc_stock_quantity'):
+        if vals.__contains__('wooc_stock_quantity') and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             if vals['wooc_stock_quantity'] == 'None':
                 vals['wooc_stock_quantity'] = 0
         
@@ -255,7 +255,7 @@ class WooCommerceProductVariants(models.Model):
         if (vals.__contains__('wooc_v_weight') or vals.__contains__('wooc_v_dimension_length') or vals.__contains__('wooc_variant_image')
                 or vals.__contains__('wooc_v_dimension_width') or vals.__contains__('wooc_v_dimension_height')
                 or vals.__contains__('wooc_sale_price') or vals.__contains__('wooc_regular_price')
-                or vals.__contains__('wooc_sku') or vals.__contains__('is_enabled') or vals.__contains__('wooc_stock_status')):
+                or vals.__contains__('wooc_sku') or vals.__contains__('is_enabled') or vals.__contains__('wooc_stock_status')) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             # variant_image =
             self.env.cr.commit()
 

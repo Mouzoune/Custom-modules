@@ -980,7 +980,7 @@ class SaleOrderLine(models.Model):
 
     def write(self, values):
         rtn = super().write(values)
-        if self.woocomm_so_line_id and self.order_wooc_id:
+        if self.woocomm_so_line_id and self.order_wooc_id and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
  #           _logger.error('/////////////')
 
             data, woo_api = {}, self.order_id.init_wc_api(self.order_id.woocomm_instance_id)
