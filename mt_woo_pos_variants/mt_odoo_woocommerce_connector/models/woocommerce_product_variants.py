@@ -246,7 +246,7 @@ class WooCommerceProductVariants(models.Model):
 
     def write(self, vals):
         
-        if vals.__contains__('wooc_stock_quantity') and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+        if vals.__contains__('wooc_stock_quantity'):
             if vals['wooc_stock_quantity'] == 'None':
                 vals['wooc_stock_quantity'] = 0
         
@@ -255,11 +255,12 @@ class WooCommerceProductVariants(models.Model):
         if (vals.__contains__('wooc_v_weight') or vals.__contains__('wooc_v_dimension_length') or vals.__contains__('wooc_variant_image')
                 or vals.__contains__('wooc_v_dimension_width') or vals.__contains__('wooc_v_dimension_height')
                 or vals.__contains__('wooc_sale_price') or vals.__contains__('wooc_regular_price')
-                or vals.__contains__('wooc_sku') or vals.__contains__('is_enabled') or vals.__contains__('wooc_stock_status')) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+                or vals.__contains__('wooc_sku') or vals.__contains__('is_enabled') or vals.__contains__('wooc_stock_status')):
             # variant_image =
             self.env.cr.commit()
+            if not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
 
-            self.wooc_variations_update(self)
+                self.wooc_variations_update(self)
        
     def init_wc_api(self, wooc_instance):
         # wooc_instance = self.env['woocommerce.instance'].search([], limit=1, order='id desc')
