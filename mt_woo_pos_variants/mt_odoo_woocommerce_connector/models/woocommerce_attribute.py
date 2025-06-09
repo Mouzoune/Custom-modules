@@ -99,10 +99,10 @@ class ProductAttribute(models.Model):
         for attr_item in self.get_all_attributes(wooc_instance, limit=100):
             _logger.info('\n\n\n\n  woocomm attribute =  %s \n\n\n\n' % (attr_item) )
             
-            # exist = self.env['product.attribute'].sudo().search([('wooc_id', '=', attr_item['id'])],limit=1)
+            exist = self.env['product.attribute'].sudo().search([('wooc_id', '=', attr_item['id']),('woocomm_instance_id', '=', wooc_instance.id)],limit=1)
             
-            # if exist:
-            #     continue
+            if exist:
+                continue
             
             p_attr = self.create_attribute( attr_item, wooc_instance)
             _logger.error(f"attr_item.  {attr_item}  p_attr. {p_attr}")
