@@ -20,7 +20,7 @@ from woocommerce import API
 class Main(http.Controller):
 
 #    @http.route('/webhook/wp/<string:wc_action>/<int:wc_id>', type='json', auth='public', methods=['POST'], csrf=False)
-    @http.route('/webhook/wp/<string:wc_action>/<int:wc_id>', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/webhook/wp/<string:wc_action>/<int:wc_id>', type='json', auth='public', methods=['POST'], csrf=False)
     def webhook_order(self, wc_action, wc_id, **kwargs):
         payload = json.loads(request.httprequest.data)
         #company_must_create_orders_json = request.env.company.sudo().must_create_orders_json or {}
