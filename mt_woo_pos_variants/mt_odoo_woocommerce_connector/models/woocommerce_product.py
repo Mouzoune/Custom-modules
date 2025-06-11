@@ -374,11 +374,11 @@ class Product(models.Model):
     def create_product(self, p_item, wooc_instance):
         _logger.error(f'self env context =====> {self.env.context}')
         _logger.error(f'self env context =====> {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
-        if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
-            _logger.error(f'Return from if self.env.context.get dont_send_data_to_wooc_from_write_method')
-            product = self.env['product.template'].search([], limit=1)
-            product.write({'name': product.name})
-            return True
+        # if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+        #     _logger.error(f'Return from if self.env.context.get dont_send_data_to_wooc_from_write_method')
+        #     product = self.env['product.template'].search([], limit=1)
+        #     product.write({'name': product.name})
+        #     return True
         _logger.error(f'create_product  == {p_item["name"]}.   {wooc_instance.id}. {wooc_instance.display_name}')
 
         p_tags = []
