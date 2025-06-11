@@ -364,7 +364,7 @@ class Product(models.Model):
                 # exist = existed_products_ids
 
                 if exist:
-                    exist.write({'name': p_item['name']})
+                    exist.write({'name': p_item['name'] if p_item['name'] else exist.name})
                     continue
 
             _logger.info('\n\n\n  Importing Product =  %s -- %s \n\n' % (p_item['id'], p_item['name']) )
