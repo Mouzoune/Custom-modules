@@ -362,7 +362,9 @@ class Product(models.Model):
                 # _logger.error('existed_products///////////')
                 # exist = self.env['product.template'].sudo().search([('wooc_id', 'in', existed_products)])
                 # exist = existed_products_ids
+
                 if exist:
+                    exist.write({'name': p_item['name']})
                     continue
 
             _logger.info('\n\n\n  Importing Product =  %s -- %s \n\n' % (p_item['id'], p_item['name']) )
