@@ -455,9 +455,11 @@ class Product(models.Model):
         else:
             _logger.error('///////////////---')
             
-            _logger.error('///////////////. product. ===    {product}')
+            _logger.error('///////////////. product.NAME ===    {product.name}')
 
             product.sudo().write(dict_p)
+            _logger.error('///////////////. product.NAME ===    {product.name}')
+
             # _logger.error('///////////////. pp.name. ===    {pp.name}')
 
         # product.sudo(). = [(4, val) for val in p_tags]
