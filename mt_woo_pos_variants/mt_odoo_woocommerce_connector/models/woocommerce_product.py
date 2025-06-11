@@ -457,7 +457,7 @@ class Product(models.Model):
             
             _logger.error('///////////////. product. ===    {product}')
 
-            product.with_user(SUPERUSER_ID).sudo().write(dict_p)
+            product.sudo().write(dict_p)
             # _logger.error('///////////////. pp.name. ===    {pp.name}')
 
         # product.sudo(). = [(4, val) for val in p_tags]
