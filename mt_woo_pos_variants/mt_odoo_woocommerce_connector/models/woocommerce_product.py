@@ -457,8 +457,8 @@ class Product(models.Model):
             
             _logger.error(f'///////////////. product.NAME ===    {product.name}')
 
-            product.sudo().write(dict_p)
-            _logger.error(f'///////////////. product.NAME ===    {product.name}.  p_item["name"]  ==>.  {p_item["name"]}')
+            product.with_user(SUPERUSER_ID).sudo().write(dict_p)
+            _logger.error(f'///////////////. product.NAME ===    {product.name}.  p_item["name"]  ==>  {p_item["name"]}')
             self.env.cr.commit()
 
             # _logger.error('///////////////. pp.name. ===    {pp.name}')
