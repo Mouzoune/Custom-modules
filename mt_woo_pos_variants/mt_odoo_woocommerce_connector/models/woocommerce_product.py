@@ -365,6 +365,8 @@ class Product(models.Model):
 
                 if exist:
                     exist.write({'name': p_item['name'] if p_item['name'] else exist.name})
+                    self.env.cr.commit()
+
                     continue
 
             _logger.info('\n\n\n  Importing Product =  %s -- %s \n\n' % (p_item['id'], p_item['name']) )
