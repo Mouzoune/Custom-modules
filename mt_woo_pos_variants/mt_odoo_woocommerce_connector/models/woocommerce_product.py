@@ -364,9 +364,6 @@ class Product(models.Model):
                 # exist = existed_products_ids
 
                 if exist:
-                    exist.write({'name': p_item['name'] if p_item['name'] else exist.name})
-                    self.env.cr.commit()
-
                     continue
 
             _logger.info('\n\n\n  Importing Product =  %s -- %s \n\n' % (p_item['id'], p_item['name']) )
@@ -459,9 +456,8 @@ class Product(models.Model):
             
             _logger.error(f'///////////////. product.NAME ===    {product.name}')
 
-            product.with_user(SUPERUSER_ID).sudo().write(dict_p)
+            product.sudo().write(dict_p)
             _logger.error(f'///////////////. product.NAME ===    {product.name}.  p_item["name"]  ==>  {p_item["name"]}')
-            self.env.cr.commit()
 
             # _logger.error('///////////////. pp.name. ===    {pp.name}')
 
@@ -520,20 +516,21 @@ class Product(models.Model):
                 if image['src']:
                     self.import_product_images_sync(image,product, False, main_image)
                     main_image = False
+        if not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
 
-        if p_item['variations']:
-            self.create_product_variations(product, wooc_instance)
-        else :
-            product_variant = self.env['product.product'].sudo().search([('product_tmpl_id', '=', product.id), ('woocomm_instance_id', '=', wooc_instance.id)])
-            if product_variant :
-                product_variant.sudo().write({'woocomm_variant_id' : p_item['id'],
-                        'woocomm_instance_id' : wooc_instance.id,
-                        'is_exported' : True})
+            if p_item['variations']:
+                self.create_product_variations(product, wooc_instance)
+            else :
+                product_variant = self.env['product.product'].sudo().search([('product_tmpl_id', '=', product.id), ('woocomm_instance_id', '=', wooc_instance.id)])
+                if product_variant :
+                    product_variant.sudo().write({'woocomm_variant_id' : p_item['id'],
+                            'woocomm_instance_id' : wooc_instance.id,
+                            'is_exported' : True})
 
-            product.sudo().write({
-                'list_price': float(p_item['price']) if p_item['price'] else 0.0,
-                'weight': p_item['weight'] if p_item['weight'] else '',
-            })
+                product.sudo().write({
+                    'list_price': float(p_item['price']) if p_item['price'] else 0.0,
+                    'weight': p_item['weight'] if p_item['weight'] else '',
+                })
 
         self.env.cr.commit()
 
