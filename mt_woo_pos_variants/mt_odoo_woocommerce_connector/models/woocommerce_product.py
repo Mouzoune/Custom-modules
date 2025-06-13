@@ -459,12 +459,13 @@ class Product(models.Model):
 
             product.sudo().write(dict_p)
             _logger.error(f'///////////////. product.NAME ===    {product.name}')
+            self.env.cr.commit()
 
             # _logger.error('///////////////. pp.name. ===    {pp.name}')
 
         # product.sudo(). = [(4, val) for val in p_tags]
 
-        # self.env.cr.commit()
+        self.env.cr.commit()
 
         if p_item['attributes']:
 
