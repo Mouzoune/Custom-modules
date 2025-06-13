@@ -464,7 +464,7 @@ class Product(models.Model):
 
         # product.sudo(). = [(4, val) for val in p_tags]
 
-        self.env.cr.commit()
+        # self.env.cr.commit()
 
         if p_item['attributes']:
 
