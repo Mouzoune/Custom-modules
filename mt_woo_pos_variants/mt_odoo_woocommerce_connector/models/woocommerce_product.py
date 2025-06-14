@@ -564,7 +564,7 @@ class Product(models.Model):
                         v_item.woocomm_stock_quantity = variant['stock_quantity']
                         v_item.woocomm_stock_status = variant['stock_status']
 
-                        if variant['image']:
+                        if variant['image'] and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
                             if variant['image']['src']:
                                 self.import_product_images_sync(variant['image'], v_item, True)
 

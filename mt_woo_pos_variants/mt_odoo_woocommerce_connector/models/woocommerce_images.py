@@ -66,11 +66,11 @@ class WooCommerceProductImages(models.Model):
             is_update_only = vals['update_only']
             del vals['update_only']
 
-        if vals.__contains__('wooc_image') and not is_import_image:
+        if vals.__contains__('wooc_image') and not is_import_image  and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             vals['is_image_synced'] = False
             vals['wooc_id'] = False
             
-        if vals.__contains__('is_main_image') and not is_import_image:
+        if vals.__contains__('is_main_image') and not is_import_image  and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             if vals['is_main_image']:
                 is_position_update = True
                 self._cr.execute("""UPDATE woocommerce_product_image SET is_main_image = False WHERE product_template_id = '%s'""" % (self.product_template_id.id))
@@ -99,7 +99,7 @@ class WooCommerceProductImages(models.Model):
         super(WooCommerceProductImages, self).write(vals)
         self.env.cr.commit()
 
-        if not is_import_image and not is_update_only:
+        if not is_import_image and not is_update_only and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             self.wooc_create_product_image(self.product_template_id, is_position_update)
             
     def unlink(self):
