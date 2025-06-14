@@ -466,7 +466,7 @@ class Product(models.Model):
         self.env.cr.commit()
         _logger.error('/11111////////////// dont_send_data_to_wooc_from_write_method ---')
 
-        if p_item['attributes']:
+        if p_item['attributes'] and  not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             _logger.error('/22222////////////// dont_send_data_to_wooc_from_write_method ---')
 
             for attr in p_item['attributes']:
