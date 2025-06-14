@@ -368,7 +368,7 @@ class WooCommerceProductVariants(models.Model):
         #     'inventory_quantity': new_quantity,
         #     'location_id': 8,
         #     }).action_apply_inventory()
-        stock_quantity = int(wc_variation.get('stock_quantity'))
+        stock_quantity = int(wc_variation.get('stock_quantity', 0))
 
         # _logger.error(f'wc_variation SUPERUSER_ID. {SUPERUSER_ID}')
         # _logger.error(f'wc_variation product_variant. {product_variant}.  product_variant_id {variant.product_variant_id}')
