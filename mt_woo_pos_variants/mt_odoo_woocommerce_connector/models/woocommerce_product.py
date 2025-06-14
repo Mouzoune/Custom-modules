@@ -511,7 +511,7 @@ class Product(models.Model):
                                 })
 
         # syn product images             
-        if p_item['images']:
+        if p_item['images'] and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             # set first image as main image
             main_image = True
             for image in p_item['images']:
