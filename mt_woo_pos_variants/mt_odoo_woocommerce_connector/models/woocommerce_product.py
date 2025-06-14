@@ -538,6 +538,8 @@ class Product(models.Model):
 
         self.env.cr.commit()
         _logger.error(f'3333 ///////////////. product.NAME ===    {product.name}.  p_item["name"]  ==>  {p_item["name"]}')
+        if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+            return True
 
     def create_product_variations(self, product, wooc_instance):
 
