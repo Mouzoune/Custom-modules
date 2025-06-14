@@ -119,34 +119,34 @@ class Main(http.Controller):
                 _("Connection Instance needs to authenticate first. \n Please try after authenticating connection!!!"))
 
 
-    @http.route('/wp-json/wc/v3/webhooks', type='json', auth='public', methods=['POST', 'GET'], csrf=False)
+    @http.route('/wp-json/wc/v3/webhooks', type='json', auth='public', methods=['POST'], csrf=False)
     def webhook_product_updated(self, **kwargs):
-        try:
-            # Parse the JSON payload
-            product_data = json.loads(request.httprequest.data)
-            source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
+        # try:
+        # Parse the JSON payload
+        product_data = json.loads(request.httprequest.data)
+        source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
+        _logger.error(f"product_data.get('variations', False). {product_data.get('variations', False)}")
+        if product_data.get('variations', False):
             wooc_instance = request.env['woocommerce.instance'].search([]).filtered(lambda x: source_path in x.shop_url)
-            _logger.error(f"product_data.get('variations', False). {product_data.get('variations', False)}")
-            if product_data.get('variations', False):
-                if not wooc_instance:
-                    wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
-                product_id = product_data['id']
-                params, url = {}, f"products" + f'?include={f"{product_id}"}'
-                woo_api = API(
-                    url=wooc_instance.shop_url,
-                    consumer_key=wooc_instance.wooc_consumer_key,
-                    consumer_secret=wooc_instance.wooc_consumer_secret,
-                    wp_api=True,
-                    version=wooc_instance.wooc_api_version
-                )
-                product = woo_api.get(url, params=params)
-                product_data_item = product.json()
-                request.env['product.template'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create_product(product_data_item[0], wooc_instance)
-            return {'status': 'success', 'message': 'Product processed successfully'}
+            if not wooc_instance:
+                wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
+            product_id = product_data['id']
+            params, url = {}, f"products" + f'?include={f"{product_id}"}'
+            woo_api = API(
+                url=wooc_instance.shop_url,
+                consumer_key=wooc_instance.wooc_consumer_key,
+                consumer_secret=wooc_instance.wooc_consumer_secret,
+                wp_api=True,
+                version=wooc_instance.wooc_api_version
+            )
+            product = woo_api.get(url, params=params)
+            product_data_item = product.json()
+            request.env['product.template'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create_product(product_data_item[0], wooc_instance)
+        return {'status': 'success', 'message': 'Product processed successfully'}
 
-        except Exception as e:
-            _logger.error(f"Error processing webhook: {e}")
-            return {'status': 'error', 'message': str(e)}
+        # except Exception as e:
+        #     _logger.error(f"Error processing webhook: {e}")
+        #     return {'status': 'error', 'message': str(e)}
 
     # @http.route('/wp-json/wc/v3/webhooks', type='json', auth='public', methods=['POST', 'GET'], csrf=False)
     # def webhook_product_updated(self, **kwargs):
