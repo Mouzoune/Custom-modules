@@ -235,7 +235,7 @@ class Product(models.Model):
                 values['is_product_active'] = True
                 values['woocomm_product_status'] = 'publish'
                 self.with_context(status='publish').set_product_status()
-        rtn = super().write(values)
+        super().write(values)
         self.env.cr.commit()
 
         if values.get('image_1920_filename', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
@@ -257,9 +257,6 @@ class Product(models.Model):
                     _logger.error('image updated successfully')
                 else:
                     _logger.error(f'image not updated {result.json()}')
-
-        return rtn
-
 
 
     def init_wc_api(self, wooc_instance):
@@ -372,8 +369,7 @@ class Product(models.Model):
 
 
     def create_product(self, p_item, wooc_instance):
-        _logger.error(f'self env context =====> {self.env.context}')
-        _logger.error(f'self env context =====> {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
+        _logger.error(f'self env context =====> {self.env.context}   {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
         # if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
         #     _logger.error(f'Return from if self.env.context.get dont_send_data_to_wooc_from_write_method')
         #     product = self.env['product.template'].search([], limit=1)
@@ -446,29 +442,17 @@ class Product(models.Model):
                     p_tags.append(existing_tag.id)
             dict_p['woocomm_tag_ids'] = [(4, val) for val in p_tags]
             
-        _logger.error('///////////////')
         product = self.env['product.template'].sudo().search([('wooc_id', '=', p_item['id']), ('woocomm_instance_id', '=', wooc_instance.id)],limit=1)
         _logger.error(f'///////////////. product {product}')
 
         if not product:
             product = self.env['product.template'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create(dict_p)
         else:
-            _logger.error('///////////////---')
-            
-            _logger.error(f'///////////////. product.NAME ===    {product.name}')
-
-            product.with_user(SUPERUSER_ID).with_context(dont_send_data_to_wooc_from_write_method=True).sudo().write(dict_p)
-            product.name = p_item['name'] if p_item['name'] else product.name
-            _logger.error(f'///////////////. product.NAME ===    {product.name}.  p_item["name"]  ==>  {p_item["name"]}')
-
-            # _logger.error('///////////////. pp.name. ===    {pp.name}')
-
-        # product.sudo(). = [(4, val) for val in p_tags]
+            product.with_context(dont_send_data_to_wooc_from_write_method=True).sudo().write(dict_p)
 
         self.env.cr.commit()
-        _logger.error('/11111////////////// dont_send_data_to_wooc_from_write_method ---')
 
-        if p_item['attributes'] and  not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+        if p_item['attributes'] and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             _logger.error('/22222////////////// dont_send_data_to_wooc_from_write_method ---')
 
             for attr in p_item['attributes']:
@@ -520,7 +504,6 @@ class Product(models.Model):
                 if image['src']:
                     self.import_product_images_sync(image,product, False, main_image)
                     main_image = False
-        # if not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
 
         if p_item['variations']:
             self.with_context(dont_send_data_to_wooc_from_write_method=True).create_product_variations(product, wooc_instance)
@@ -535,12 +518,22 @@ class Product(models.Model):
                 'list_price': float(p_item['price']) if p_item['price'] else 0.0,
                 'weight': p_item['weight'] if p_item['weight'] else '',
             })
-        _logger.error(f'2222 ///////////////. product.NAME ===    {product.name}.  p_item["name"]  ==>  {p_item["name"]}')
+
+            stock_quantity = int(p_item.get('stock_quantity'))
+            if stock_quantity:
+
+                InventoryWizard = self.env['stock.change.product.qty'].with_user(SUPERUSER_ID).sudo()
+                inventory_wizard = InventoryWizard.create({
+                    'product_id': product_variant.id,
+                    'product_tmpl_id': product_variant.product_tmpl_id.id,
+                    'new_quantity': stock_quantity,
+                })
+            # User has no right on quant, must raise an AccessError
+                inventory_wizard.change_product_qty()
+
 
         self.env.cr.commit()
-        _logger.error(f'3333 ///////////////. product.NAME ===    {product.name}.  p_item["name"]  ==>  {p_item["name"]}')
-        if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
-            return True
+
 
     def create_product_variations(self, product, wooc_instance):
 
