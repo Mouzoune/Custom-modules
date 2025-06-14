@@ -1037,10 +1037,10 @@ class SaleOrderLine(models.Model):
                         data["line_items"].append(item_update)
             
             # Add custom headers
-            headers = {
-                "X-Odoo-Origin": "true",
-                "Content-Type": "application/json"
-            }
+            # headers = {
+            #     "X-Odoo-Origin": "true",
+            #     "Content-Type": "application/json"
+            # }
             
             # For new lines, we need to merge with existing items
             if is_new_line:
@@ -1049,7 +1049,7 @@ class SaleOrderLine(models.Model):
             
             try:
                 # Send the update to WooCommerce
-                response = woo_api.put(url, data, headers=headers)
+                response = woo_api.put(url, data)
                 
                 if response.status_code != 200:
                     error_msg = f"Failed to update WooCommerce order. Status: {response.status_code}, Response: {response.text}"
