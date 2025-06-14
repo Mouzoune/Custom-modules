@@ -987,9 +987,12 @@ class SaleOrderLine(models.Model):
         
         # Check if we're adding a new line (no woocomm_so_line_id yet)
         is_new_line = not self.woocomm_so_line_id and self.order_wooc_id
+        _logger.error('/////////////////')
         
         # Handle both updates and new line additions
         if (self.woocomm_so_line_id or is_new_line) and self.order_wooc_id:
+            _logger.error('/////////  self.woocomm_so_line_id or is_new_line) and self.order_wooc_id  ////////')
+
             woo_api = self.order_id.init_wc_api(self.order_id.woocomm_instance_id)
             url = f"orders/{self.order_wooc_id}"
             
@@ -1000,6 +1003,8 @@ class SaleOrderLine(models.Model):
             data = {"line_items": []}
             
             if is_new_line:
+                _logger.error('////////  is_new_line   /////////')
+
                 # This is a NEW line being added to the order
                 new_item = {
                     "product_id": int(self.product_template_id.wooc_id),
@@ -1019,6 +1024,8 @@ class SaleOrderLine(models.Model):
                 
                 data["line_items"].append(new_item)
             else:
+                _logger.error('////////  else   /////////')
+
                 # This is an EXISTING line being updated
                 line_items_data = wooc_order.get('line_items', [])
                 for line_item in line_items_data:
