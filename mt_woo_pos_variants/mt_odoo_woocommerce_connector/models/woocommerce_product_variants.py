@@ -258,9 +258,9 @@ class WooCommerceProductVariants(models.Model):
                 or vals.__contains__('wooc_sku') or vals.__contains__('is_enabled') or vals.__contains__('wooc_stock_status')):
             # variant_image =
             self.env.cr.commit()
-            if not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+            # if not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
 
-                self.wooc_variations_update(self)
+            self.wooc_variations_update(self)
        
     def init_wc_api(self, wooc_instance):
         # wooc_instance = self.env['woocommerce.instance'].search([], limit=1, order='id desc')
@@ -318,9 +318,12 @@ class WooCommerceProductVariants(models.Model):
             data['image'] = {'src': src}
         # if variant.file_name:
         #     data.update({'image': {'src': f'{base_url}/web/image/{self._name}/{variant.id}/wooc_variant_image/{variant.file_name}'}})
+        if not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+            wc_variation = woo_api.post("products/%s/variations/%s"%(product_wooc_id,variation_id), data).json()
+        else:
+            wc_variation = woo_api.get("products/%s/variations/%s"%(product_wooc_id,variation_id)).json()
 
-        wc_variation = woo_api.post("products/%s/variations/%s"%(product_wooc_id,variation_id), data).json()
-        # _logger.error(wc_variation)
+            _logger.error(f'wc_variation ==>  {wc_variation}')
         # if wc_variation.get('code') != 'woocommerce_variation_image_upload_error':
             # _logger.error(wc_variation)
 
