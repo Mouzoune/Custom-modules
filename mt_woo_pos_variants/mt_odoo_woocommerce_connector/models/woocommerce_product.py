@@ -508,6 +508,8 @@ class Product(models.Model):
         if p_item['variations']:
             self.with_context(dont_send_data_to_wooc_from_write_method=True).create_product_variations(product, wooc_instance)
         else :
+            _logger.error('|| Update product variations ||')
+
             product_variant = self.env['product.product'].sudo().search([('product_tmpl_id', '=', product.id), ('woocomm_instance_id', '=', wooc_instance.id)])
             if product_variant :
                 product_variant.with_context(dont_send_data_to_wooc_from_write_method=True).sudo().write({'woocomm_variant_id' : p_item['id'],
@@ -536,6 +538,7 @@ class Product(models.Model):
 
 
     def create_product_variations(self, product, wooc_instance):
+        _logger.error('|| Create product variations ||')
 
         product_variant = self.env['product.product'].sudo().search([('product_tmpl_id', '=', product.id), ('woocomm_instance_id', '=', wooc_instance.id)])
 
