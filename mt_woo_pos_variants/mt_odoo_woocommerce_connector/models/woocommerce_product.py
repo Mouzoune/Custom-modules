@@ -519,17 +519,17 @@ class Product(models.Model):
                 'weight': p_item['weight'] if p_item['weight'] else '',
             })
 
-            stock_quantity = int(p_item.get('stock_quantity'))
-            if stock_quantity:
+            # stock_quantity = int(p_item.get('stock_quantity'))
+            # if stock_quantity:
 
-                InventoryWizard = self.env['stock.change.product.qty'].with_user(SUPERUSER_ID).sudo()
-                inventory_wizard = InventoryWizard.create({
-                    'product_id': product_variant.id,
-                    'product_tmpl_id': product_variant.product_tmpl_id.id,
-                    'new_quantity': stock_quantity,
-                })
-            # User has no right on quant, must raise an AccessError
-                inventory_wizard.change_product_qty()
+            #     InventoryWizard = self.env['stock.change.product.qty'].with_user(SUPERUSER_ID).sudo()
+            #     inventory_wizard = InventoryWizard.create({
+            #         'product_id': product_variant.id,
+            #         'product_tmpl_id': product_variant.product_tmpl_id.id,
+            #         'new_quantity': stock_quantity,
+            #     })
+            # # User has no right on quant, must raise an AccessError
+            #     inventory_wizard.change_product_qty()
 
 
         self.env.cr.commit()
