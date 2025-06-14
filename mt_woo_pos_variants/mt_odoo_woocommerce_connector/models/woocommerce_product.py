@@ -534,8 +534,10 @@ class Product(models.Model):
                 'list_price': float(p_item['price']) if p_item['price'] else 0.0,
                 'weight': p_item['weight'] if p_item['weight'] else '',
             })
+        _logger.error(f'2222 ///////////////. product.NAME ===    {product.name}.  p_item["name"]  ==>  {p_item["name"]}')
 
         self.env.cr.commit()
+        _logger.error(f'3333 ///////////////. product.NAME ===    {product.name}.  p_item["name"]  ==>  {p_item["name"]}')
 
     def create_product_variations(self, product, wooc_instance):
 
