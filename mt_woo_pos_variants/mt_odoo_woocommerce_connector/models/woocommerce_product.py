@@ -450,13 +450,13 @@ class Product(models.Model):
         _logger.error(f'///////////////. product {product}')
 
         if not product:
-            product = self.env['product.template'].sudo().create(dict_p)
+            product = self.env['product.template'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create(dict_p)
         else:
             _logger.error('///////////////---')
             
             _logger.error(f'///////////////. product.NAME ===    {product.name}')
 
-            product.sudo().write(dict_p)
+            product.with_context(dont_send_data_to_wooc_from_write_method=True).sudo().write(dict_p)
             _logger.error(f'///////////////. product.NAME ===    {product.name}.  p_item["name"]  ==>  {p_item["name"]}')
 
             # _logger.error('///////////////. pp.name. ===    {pp.name}')
@@ -466,7 +466,7 @@ class Product(models.Model):
         self.env.cr.commit()
         _logger.error('/11111////////////// dont_send_data_to_wooc_from_write_method ---')
 
-        if p_item['attributes'] and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+        if p_item['attributes']:
             _logger.error('/22222////////////// dont_send_data_to_wooc_from_write_method ---')
 
             for attr in p_item['attributes']:
@@ -475,11 +475,11 @@ class Product(models.Model):
                     #product custom attribute id is 0 and skip creating custom attribute
                     continue
 
-                product_attr = self.env['product.attribute'].sudo().create_attribute(attr, wooc_instance)
+                product_attr = self.env['product.attribute'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create_attribute(attr, wooc_instance)
 
                 p_attr_val = []
                 if attr['options'] and attr['variation'] == True:
-                    self.env['product.attribute'].sudo().create_attribute_terms(product_attr, wooc_instance)
+                    self.env['product.attribute'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create_attribute_terms(product_attr, wooc_instance)
 
                     for value in attr['options']:
                         _logger.error(f'value... {value}')
@@ -498,13 +498,13 @@ class Product(models.Model):
                                 _logger.error('/////////////////////  p_attr_val +++++ /')
                                 _logger.error(product_attr)
                                 _logger.error(p_attr_val)
-                                exist = self.env['product.template.attribute.line'].sudo().create({
+                                exist = self.env['product.template.attribute.line'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create({
                                     'attribute_id': product_attr.id,
                                     'value_ids': [(6, 0, [p_a for p_a in p_attr_val if p_a])],
                                     'product_tmpl_id': product.id
                                 })
                             else:
-                                exist.sudo().write({
+                                exist.with_context(dont_send_data_to_wooc_from_write_method=True).sudo().write({
                                     'attribute_id': product_attr.id,
                                     'value_ids': [(6, 0, [p_a for p_a in p_attr_val if p_a])],
                                     'product_tmpl_id': product.id
@@ -518,21 +518,21 @@ class Product(models.Model):
                 if image['src']:
                     self.import_product_images_sync(image,product, False, main_image)
                     main_image = False
-        if not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+        # if not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
 
-            if p_item['variations']:
-                self.create_product_variations(product, wooc_instance)
-            else :
-                product_variant = self.env['product.product'].sudo().search([('product_tmpl_id', '=', product.id), ('woocomm_instance_id', '=', wooc_instance.id)])
-                if product_variant :
-                    product_variant.sudo().write({'woocomm_variant_id' : p_item['id'],
-                            'woocomm_instance_id' : wooc_instance.id,
-                            'is_exported' : True})
+        if p_item['variations']:
+            self.with_context(dont_send_data_to_wooc_from_write_method=True).create_product_variations(product, wooc_instance)
+        else :
+            product_variant = self.env['product.product'].sudo().search([('product_tmpl_id', '=', product.id), ('woocomm_instance_id', '=', wooc_instance.id)])
+            if product_variant :
+                product_variant.with_context(dont_send_data_to_wooc_from_write_method=True).sudo().write({'woocomm_variant_id' : p_item['id'],
+                        'woocomm_instance_id' : wooc_instance.id,
+                        'is_exported' : True})
 
-                product.sudo().write({
-                    'list_price': float(p_item['price']) if p_item['price'] else 0.0,
-                    'weight': p_item['weight'] if p_item['weight'] else '',
-                })
+            product.with_context(dont_send_data_to_wooc_from_write_method=True).sudo().write({
+                'list_price': float(p_item['price']) if p_item['price'] else 0.0,
+                'weight': p_item['weight'] if p_item['weight'] else '',
+            })
 
         self.env.cr.commit()
 

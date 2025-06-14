@@ -124,26 +124,13 @@ class Main(http.Controller):
         try:
             # Parse the JSON payload
             product_data = json.loads(request.httprequest.data)
-            _logger.info(f"Webhook payload request.httprequest: {request.httprequest}")
-            _logger.info(f"Webhook payload request.httprequest..Source: {request.httprequest.headers.get('X-Wc-Webhook-Source')}")
-            _logger.info(f"Webhook payload request.httprequest..Topic: {request.httprequest.headers.get('X-Wc-Webhook-Topic')}")
-            _logger.info(f"Webhook payload request.httprequest..Resource: {request.httprequest.headers.get('X-Wc-Webhook-Resource')}")
-            _logger.info(f"Webhook payload received: {product_data}") 
             source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
             wooc_instance = request.env['woocommerce.instance'].search([]).filtered(lambda x: source_path in x.shop_url)
-            # Extract product data from the payload
-            # product_data = payload
-            # if not product_data:
-            #     return {'status': 'error', 'message': 'No product data found in payload'}
+
             if not wooc_instance:
                 wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
-
-            # woo_api = self.init_wc_api(wooc_instance)
             product_id = product_data['id']
             params, url = {}, f"products" + f'?include={f"{product_id}"}'
-            _logger.error(f'params, url ===  {params}. {url} {wooc_instance.display_name} {wooc_instance}')
-            
-
             woo_api = API(
                 url=wooc_instance.shop_url,
                 consumer_key=wooc_instance.wooc_consumer_key,
@@ -153,27 +140,9 @@ class Main(http.Controller):
             )
             product = woo_api.get(url, params=params)
             product_data_item = product.json()
-            _logger.error(f'product ===  {product} . {product_data_item}')
             request.env['product.template'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create_product(product_data_item[0], wooc_instance)
-
             return {'status': 'success', 'message': 'Product processed successfully'}
 
-
-            # # Check if the product already exists
-            # product = request.env['product.template'].sudo().search(
-            #     [('wooc_id', '=', product_data['id']), ('woocomm_instance_id', '=', woocomm_instance_id.id)], limit=1
-            # )
-            # _logger.error(f'product =  {product}')
-
-            # # Create or update the product
-            # if product:
-            #     _logger.info(f"Updating product with WooCommerce ID {product_data['id']}")
-            #     product.sudo().write(self._prepare_product_vals(product_data, woocomm_instance_id))
-            # else:
-            #     _logger.info(f"Creating product with WooCommerce ID {product_data['id']}")
-            #     request.env['product.template'].sudo().create(self._prepare_product_vals(product_data, woocomm_instance_id))
-
-            # return {'status': 'success', 'message': 'Product processed successfully'}
         except Exception as e:
             _logger.error(f"Error processing webhook: {e}")
             return {'status': 'error', 'message': str(e)}
