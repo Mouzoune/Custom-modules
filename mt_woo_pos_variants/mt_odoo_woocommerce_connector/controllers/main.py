@@ -126,21 +126,22 @@ class Main(http.Controller):
             product_data = json.loads(request.httprequest.data)
             source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
             wooc_instance = request.env['woocommerce.instance'].search([]).filtered(lambda x: source_path in x.shop_url)
-
-            if not wooc_instance:
-                wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
-            product_id = product_data['id']
-            params, url = {}, f"products" + f'?include={f"{product_id}"}'
-            woo_api = API(
-                url=wooc_instance.shop_url,
-                consumer_key=wooc_instance.wooc_consumer_key,
-                consumer_secret=wooc_instance.wooc_consumer_secret,
-                wp_api=True,
-                version=wooc_instance.wooc_api_version
-            )
-            product = woo_api.get(url, params=params)
-            product_data_item = product.json()
-            request.env['product.template'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create_product(product_data_item[0], wooc_instance)
+            _logger.error(product_data.get('variations', False))
+            if product_data.get('variations', False):
+                if not wooc_instance:
+                    wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
+                product_id = product_data['id']
+                params, url = {}, f"products" + f'?include={f"{product_id}"}'
+                woo_api = API(
+                    url=wooc_instance.shop_url,
+                    consumer_key=wooc_instance.wooc_consumer_key,
+                    consumer_secret=wooc_instance.wooc_consumer_secret,
+                    wp_api=True,
+                    version=wooc_instance.wooc_api_version
+                )
+                product = woo_api.get(url, params=params)
+                product_data_item = product.json()
+                request.env['product.template'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create_product(product_data_item[0], wooc_instance)
             return {'status': 'success', 'message': 'Product processed successfully'}
 
         except Exception as e:
