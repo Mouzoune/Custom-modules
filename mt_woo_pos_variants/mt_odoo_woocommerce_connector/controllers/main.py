@@ -126,7 +126,7 @@ class Main(http.Controller):
             product_data = json.loads(request.httprequest.data)
             source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
             wooc_instance = request.env['woocommerce.instance'].search([]).filtered(lambda x: source_path in x.shop_url)
-            _logger.error(product_data.get('variations', False))
+            _logger.error(f"product_data.get('variations', False). {product_data.get('variations', False)}")
             if product_data.get('variations', False):
                 if not wooc_instance:
                     wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
