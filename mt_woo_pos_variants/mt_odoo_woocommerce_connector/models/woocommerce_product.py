@@ -457,6 +457,7 @@ class Product(models.Model):
             _logger.error(f'///////////////. product.NAME ===    {product.name}')
 
             product.with_context(dont_send_data_to_wooc_from_write_method=True).sudo().write(dict_p)
+            product.name = p_item['name'] if p_item['name'] else product.name
             _logger.error(f'///////////////. product.NAME ===    {product.name}.  p_item["name"]  ==>  {p_item["name"]}')
 
             # _logger.error('///////////////. pp.name. ===    {pp.name}')
