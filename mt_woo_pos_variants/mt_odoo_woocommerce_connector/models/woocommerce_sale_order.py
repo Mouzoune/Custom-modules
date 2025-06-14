@@ -978,119 +978,236 @@ class SaleOrderLine(models.Model):
     #                 })
     #     return rtn
     # DeepSeek
-    def write(self, values):
-        rtn = super().write(values)
+    # def write(self, values):
+    #     rtn = super().write(values)
         
-        # Skip if we shouldn't send data to WooCommerce
-        if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
-            return rtn
+    #     # Skip if we shouldn't send data to WooCommerce
+    #     if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+    #         return rtn
         
-        # Check if we're adding a new line (no woocomm_so_line_id yet)
-        is_new_line = not self.woocomm_so_line_id and self.order_wooc_id
-        _logger.error('/////////////////')
+    #     # Check if we're adding a new line (no woocomm_so_line_id yet)
+    #     is_new_line = not self.woocomm_so_line_id and self.order_wooc_id
+    #     _logger.error('/////////////////')
         
-        # Handle both updates and new line additions
-        if (self.woocomm_so_line_id or is_new_line) and self.order_wooc_id:
-            _logger.error('/////////  self.woocomm_so_line_id or is_new_line) and self.order_wooc_id  ////////')
+    #     # Handle both updates and new line additions
+    #     if (self.woocomm_so_line_id or is_new_line) and self.order_wooc_id:
+    #         _logger.error('/////////  self.woocomm_so_line_id or is_new_line) and self.order_wooc_id  ////////')
 
-            woo_api = self.order_id.init_wc_api(self.order_id.woocomm_instance_id)
-            url = f"orders/{self.order_wooc_id}"
+    #         woo_api = self.order_id.init_wc_api(self.order_id.woocomm_instance_id)
+    #         url = f"orders/{self.order_wooc_id}"
             
-            # Get current order data from WooCommerce
-            wooc_order = woo_api.get(url).json()
+    #         # Get current order data from WooCommerce
+    #         wooc_order = woo_api.get(url).json()
             
-            # Prepare the data structure
-            data = {"line_items": []}
+    #         # Prepare the data structure
+    #         data = {"line_items": []}
             
-            if is_new_line:
-                _logger.error('////////  is_new_line   /////////')
+    #         if is_new_line:
+    #             _logger.error('////////  is_new_line   /////////')
 
-                # This is a NEW line being added to the order
-                new_item = {
-                    "product_id": int(self.product_template_id.wooc_id),
-                    "quantity": float(values.get('product_uom_qty', self.product_uom_qty))
+    #             # This is a NEW line being added to the order
+    #             new_item = {
+    #                 "product_id": int(self.product_template_id.wooc_id),
+    #                 "quantity": float(values.get('product_uom_qty', self.product_uom_qty))
+    #             }
+                
+    #             # Handle variable products
+    #             if self.product_template_id.woocomm_product_type == 'variable':
+    #                 new_item["variation_id"] = int(self.product_id.woocomm_variant_id)
+                
+    #             # Set pricing if provided
+    #             if values.get('price_unit', False):
+    #                 new_item.update({
+    #                     'total': str(values.get('price_total', self.price_total)),
+    #                     'subtotal': str(values.get('price_subtotal', self.price_total))
+    #                 })
+                
+    #             data["line_items"].append(new_item)
+    #         else:
+    #             _logger.error('////////  else   /////////')
+
+    #             # This is an EXISTING line being updated
+    #             line_items_data = wooc_order.get('line_items', [])
+    #             for line_item in line_items_data:
+    #                 if line_item['id'] == int(self.woocomm_so_line_id):
+    #                     item_update = {"id": line_item["id"]}
+                        
+    #                     if values.get('product_uom_qty', False):
+    #                         item_update['quantity'] = float(values.get('product_uom_qty', self.product_uom_qty))
+                        
+    #                     if values.get('price_unit', False):
+    #                         item_update.update({
+    #                             'total': str(values.get('price_total', self.price_total)),
+    #                             'subtotal': str(values.get('price_subtotal', self.price_total))
+    #                         })
+                        
+    #                     data["line_items"].append(item_update)
+            
+    #         # Add custom headers
+    #         # headers = {
+    #         #     "X-Odoo-Origin": "true",
+    #         #     "Content-Type": "application/json"
+    #         # }
+            
+    #         # For new lines, we need to merge with existing items
+    #         if is_new_line:
+    #             existing_items = [item for item in wooc_order.get('line_items', [])]
+    #             data["line_items"] = existing_items + data["line_items"]
+            
+    #         try:
+    #             # Send the update to WooCommerce
+    #             response = woo_api.put(url, data)
+                
+    #             if response.status_code != 200:
+    #                 error_msg = f"Failed to update WooCommerce order. Status: {response.status_code}, Response: {response.text}"
+    #                 _logger.error(error_msg)
+    #                 raise UserError(_('Could not update WooCommerce order: %s') % response.text)
+                
+    #             # Update Odoo with WooCommerce order totals if successful
+    #             order_data = response.json()
+    #             self.order_id.update({
+    #                 'woocomm_order_subtotal': float(order_data.get('total', 0)),
+    #                 'woocomm_order_total_tax': float(order_data.get('total_tax', 0)),
+    #                 'woocomm_order_total': float(order_data.get('total', 0)),
+    #             })
+                
+    #             # For new lines, store the WooCommerce line item ID
+    #             if is_new_line and not self.woocomm_so_line_id:
+    #                 # Find the new line item in the response
+    #                 new_line_item = next(
+    #                     (item for item in order_data.get('line_items', []) 
+    #                     if item.get('product_id') == int(self.product_template_id.wooc_id) and
+    #                         (self.product_template_id.woocomm_product_type != 'variable' or 
+    #                         item.get('variation_id') == int(self.product_id.woocomm_variant_id))),
+    #                     None
+    #                 )
+                    
+    #                 if new_line_item:
+    #                     self.write({'woocomm_so_line_id': str(new_line_item['id'])})
+                        
+    #         except Exception as e:
+    #             _logger.error("Error updating WooCommerce order: %s", str(e))
+    #             raise UserError(_('Error communicating with WooCommerce: %s') % str(e))
+        
+    #     return rtn
+
+
+
+def write(self, values):
+    rtn = super().write(values)
+    
+    # Skip if we shouldn't send data to WooCommerce
+    if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+        return rtn
+    
+    # Check if we're adding a new line (no woocomm_so_line_id yet)
+    is_new_line = not self.woocomm_so_line_id and self.order_wooc_id
+    
+    # Handle both updates and new line additions
+    if (self.woocomm_so_line_id or is_new_line) and self.order_wooc_id:
+        woo_api = self.order_id.init_wc_api(self.order_id.woocomm_instance_id)
+        url = f"orders/{self.order_wooc_id}"
+        
+        # Get current order data from WooCommerce
+        wooc_order = woo_api.get(url).json()
+        
+        # Prepare the data structure - we'll send only the fields WooCommerce expects
+        data = {"line_items": []}
+        
+        if is_new_line:
+            # This is a NEW line being added to the order
+            new_item = {
+                "product_id": int(self.product_template_id.wooc_id),
+                "quantity": float(values.get('product_uom_qty', self.product_uom_qty))
+            }
+            
+            # Handle variable products
+            if self.product_template_id.woocomm_product_type == 'variable':
+                new_item["variation_id"] = int(self.product_id.woocomm_variant_id)
+            
+            # Set pricing if provided
+            if values.get('price_unit', False):
+                new_item.update({
+                    'total': str(values.get('price_total', self.price_total)),
+                    'subtotal': str(values.get('price_subtotal', self.price_total))
+                })
+            
+            data["line_items"].append(new_item)
+        else:
+            # This is an EXISTING line being updated
+            line_items_data = wooc_order.get('line_items', [])
+            for line_item in line_items_data:
+                if line_item.get('id') == int(self.woocomm_so_line_id):
+                    # Create a clean item with only the fields we want to update
+                    item_update = {
+                        "id": int(line_item["id"]),
+                        "quantity": float(values.get('product_uom_qty', self.product_uom_qty))
+                    }
+                    
+                    if values.get('price_unit', False):
+                        item_update.update({
+                            'total': str(values.get('price_total', self.price_total)),
+                            'subtotal': str(values.get('price_subtotal', self.price_total))
+                        })
+                    
+                    data["line_items"].append(item_update)
+        
+        # For new lines, merge with existing items but clean them first
+        if is_new_line:
+            existing_items = []
+            for item in wooc_order.get('line_items', []):
+                # Create a clean version of each existing item
+                clean_item = {
+                    "id": int(item["id"]),
+                    "product_id": int(item["product_id"]),
+                    "quantity": float(item["quantity"]),
+                    "price": float(item.get("price", 0)),
                 }
                 
-                # Handle variable products
-                if self.product_template_id.woocomm_product_type == 'variable':
-                    new_item["variation_id"] = int(self.product_id.woocomm_variant_id)
+                # Add variation_id if it exists
+                if item.get("variation_id"):
+                    clean_item["variation_id"] = int(item["variation_id"])
                 
-                # Set pricing if provided
-                if values.get('price_unit', False):
-                    new_item.update({
-                        'total': str(values.get('price_total', self.price_total)),
-                        'subtotal': str(values.get('price_subtotal', self.price_total))
-                    })
-                
-                data["line_items"].append(new_item)
-            else:
-                _logger.error('////////  else   /////////')
-
-                # This is an EXISTING line being updated
-                line_items_data = wooc_order.get('line_items', [])
-                for line_item in line_items_data:
-                    if line_item['id'] == int(self.woocomm_so_line_id):
-                        item_update = {"id": line_item["id"]}
-                        
-                        if values.get('product_uom_qty', False):
-                            item_update['quantity'] = float(values.get('product_uom_qty', self.product_uom_qty))
-                        
-                        if values.get('price_unit', False):
-                            item_update.update({
-                                'total': str(values.get('price_total', self.price_total)),
-                                'subtotal': str(values.get('price_subtotal', self.price_total))
-                            })
-                        
-                        data["line_items"].append(item_update)
+                existing_items.append(clean_item)
             
-            # Add custom headers
-            # headers = {
-            #     "X-Odoo-Origin": "true",
-            #     "Content-Type": "application/json"
-            # }
-            
-            # For new lines, we need to merge with existing items
-            if is_new_line:
-                existing_items = [item for item in wooc_order.get('line_items', [])]
-                data["line_items"] = existing_items + data["line_items"]
-            
-            try:
-                # Send the update to WooCommerce
-                response = woo_api.put(url, data)
-                
-                if response.status_code != 200:
-                    error_msg = f"Failed to update WooCommerce order. Status: {response.status_code}, Response: {response.text}"
-                    _logger.error(error_msg)
-                    raise UserError(_('Could not update WooCommerce order: %s') % response.text)
-                
-                # Update Odoo with WooCommerce order totals if successful
-                order_data = response.json()
-                self.order_id.update({
-                    'woocomm_order_subtotal': float(order_data.get('total', 0)),
-                    'woocomm_order_total_tax': float(order_data.get('total_tax', 0)),
-                    'woocomm_order_total': float(order_data.get('total', 0)),
-                })
-                
-                # For new lines, store the WooCommerce line item ID
-                if is_new_line and not self.woocomm_so_line_id:
-                    # Find the new line item in the response
-                    new_line_item = next(
-                        (item for item in order_data.get('line_items', []) 
-                        if item.get('product_id') == int(self.product_template_id.wooc_id) and
-                            (self.product_template_id.woocomm_product_type != 'variable' or 
-                            item.get('variation_id') == int(self.product_id.woocomm_variant_id))),
-                        None
-                    )
-                    
-                    if new_line_item:
-                        self.write({'woocomm_so_line_id': str(new_line_item['id'])})
-                        
-            except Exception as e:
-                _logger.error("Error updating WooCommerce order: %s", str(e))
-                raise UserError(_('Error communicating with WooCommerce: %s') % str(e))
+            data["line_items"] = existing_items + data["line_items"]
         
-        return rtn
-
+        try:
+            # Send the update to WooCommerce
+            response = woo_api.put(url, data)
+            
+            if response.status_code != 200:
+                error_msg = f"Failed to update WooCommerce order. Status: {response.status_code}, Response: {response.text}"
+                _logger.error(error_msg)
+                raise UserError(_('Could not update WooCommerce order: %s') % response.text)
+            
+            # Update Odoo with WooCommerce order totals if successful
+            order_data = response.json()
+            self.order_id.update({
+                'woocomm_order_subtotal': float(order_data.get('total', 0)),
+                'woocomm_order_total_tax': float(order_data.get('total_tax', 0)),
+                'woocomm_order_total': float(order_data.get('total', 0)),
+            })
+            
+            # For new lines, store the WooCommerce line item ID
+            if is_new_line and not self.woocomm_so_line_id:
+                # Find the new line item in the response
+                new_line_item = next(
+                    (item for item in order_data.get('line_items', []) 
+                     if item.get('product_id') == int(self.product_template_id.wooc_id) and
+                        (self.product_template_id.woocomm_product_type != 'variable' or 
+                         item.get('variation_id') == int(self.product_id.woocomm_variant_id))),
+                    None
+                )
+                
+                if new_line_item:
+                    self.write({'woocomm_so_line_id': str(new_line_item['id'])})
+                    
+        except Exception as e:
+            _logger.error("Error updating WooCommerce order: %s", str(e))
+            raise UserError(_('Error communicating with WooCommerce: %s') % str(e))
+    
+    return rtn
     # def write(self, values):
     #     rtn = super().write(values)
     #     if self.woocomm_so_line_id and self.order_wooc_id and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
