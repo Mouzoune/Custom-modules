@@ -1172,7 +1172,11 @@ def write(self, values):
             
             data["line_items"] = existing_items + data["line_items"]
         
+        _logger.error(f'data ===> {data}')
+        
         try:
+            _logger.error(f'TRY == TRY == TRY == TRY == TRY == TRY')
+
             # Send the update to WooCommerce
             response = woo_api.put(url, data)
             
