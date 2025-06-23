@@ -18,17 +18,7 @@ from woocommerce import API
 
 
 class Main(http.Controller):
-
-    '''
-        self env context =====> {'lang': 'fr_FR', 'tz': 'Africa/Casablanca', 'uid': 2, 'dont_send_data_to_wooc_from_write_method': True} 
-        self env context =====> True 
-        Return from if self.env.context.get dont_send_data_to_wooc_from_write_method 
-        self env context =====> True 
-        WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method
-
-        import_sale_order
-
-    '''
+    
 
     @http.route('/webhook/wp/<string:wc_action>/<int:wc_id>', type='http', auth='public', methods=['POST', 'GET'], csrf=False)
     def webhook_order(self, wc_action, wc_id, **kwargs):
@@ -127,7 +117,7 @@ class Main(http.Controller):
         # Parse the JSON payload
         product_data = json.loads(request.httprequest.data)
         source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
-        _logger.error(f"product_data.get('variations', False). {product_data.get('variations', False)}")
+        _logger.error(f"Create/Update product     ID = {product_data.get('id', False)}")
         if product_data.get('variations', False):
             wooc_instance = request.env['woocommerce.instance'].search([]).filtered(lambda x: source_path in x.shop_url)
             if not wooc_instance:
@@ -146,23 +136,12 @@ class Main(http.Controller):
             request.env['product.template'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create_product(product_data_item[0], wooc_instance)
         return {'status': 'success', 'message': 'Product processed successfully'}
 
-        # except Exception as e:
-        #     _logger.error(f"Error processing webhook: {e}")
-        #     return {'status': 'error', 'message': str(e)}
-
-
-    @http.route('/wp-json/wc/v3/webhooks/orders_cu', type='json', auth='public', methods=['POST'], csrf=False)
-    def webhook_order_created_updatedorders_cu(self, **kwargs):
-        order_data = json.loads(request.httprequest.data)
-        source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
-        _logger.error(f"product_data.get(orders_cu . {order_data}")
-        return {'status': 'success', 'message': 'Order processed successfully'}
 
     @http.route('/wp-json/wc/v3/webhooks/orders', type='json', auth='public', methods=['POST'], csrf=False)
     def webhook_order_created_updated(self, **kwargs):
         order_data = json.loads(request.httprequest.data)
         source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
-        _logger.error(f"product_data.get('variations', False). ID = {order_data.get('id', False)} || status = {order_data.get('status', False)}")
+        _logger.error(f"Create/Update order     ID = {order_data.get('id', False)}")
         wooc_instance = request.env['woocommerce.instance'].search([]).filtered(lambda x: source_path in x.shop_url)
         if not wooc_instance:
             wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')

@@ -250,7 +250,6 @@ class SaleOrder(models.Model):
 
                 res_partner = self.env['res.partner'].sudo().search(
                         [('wooc_user_id', '=', order['customer_id']), ('woocomm_instance_id', '=', instance_id.id)], limit=1)
-        _logger.error(f'res_partner      {res_partner}')
         if res_partner:
             
             dict_so = {}
@@ -395,10 +394,6 @@ class SaleOrder(models.Model):
         return create_invoice
    
     def create_sale_order_line(self, so_id, instance_id, line_item):
-        #_logger.error('line_item / line_item / line_item / line_item')
-        #_logger.error(line_item)
-        #_logger.error('111 / line_item / line_item / line_item')
-        #_logger.error(line_item.get('variation_id'))
         res_product = ''
         if line_item.get('product_id') or line_item.get('variation_id'):
             res_product = self.env['product.product'].sudo().search(
@@ -906,7 +901,7 @@ class SaleOrderLine(models.Model):
                 
                 data["line_items"] = existing_items + data["line_items"]
             
-            _logger.error(f'data ===> {data}')
+            # _logger.error(f'data ===> {data}')
             if not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             
                 try:
