@@ -155,7 +155,7 @@ class Main(http.Controller):
     def webhook_order_created_updatedorders_cu(self, **kwargs):
         order_data = json.loads(request.httprequest.data)
         source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
-        _logger.error(f"product_data.get(orders_cu . {orders_cu}")
+        _logger.error(f"product_data.get(orders_cu . {order_data}")
         return {'status': 'success', 'message': 'Order processed successfully'}
 
     @http.route('/wp-json/wc/v3/webhooks/orders', type='json', auth='public', methods=['POST'], csrf=False)
