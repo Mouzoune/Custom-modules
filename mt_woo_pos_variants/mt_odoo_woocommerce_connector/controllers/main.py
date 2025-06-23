@@ -176,9 +176,9 @@ class Main(http.Controller):
                 wp_api=True,
                 version=wooc_instance.wooc_api_version
             )
-            product = woo_api.get(url, params=params)
-            product_data_item = product.json()
-            request.env['sale.order'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create_sale_order(product_data_item[0], wooc_instance)
+            order = woo_api.get(url, params=params)
+            order_data_item = order.json()
+            request.env['sale.order'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create_sale_order(order_data_item[0], wooc_instance)
         return {'status': 'success', 'message': 'Order processed successfully'}
 
     # @http.route('/wp-json/wc/v3/webhooks', type='json', auth='public', methods=['POST', 'GET'], csrf=False)
