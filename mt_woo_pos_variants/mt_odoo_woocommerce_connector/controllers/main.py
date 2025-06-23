@@ -162,7 +162,7 @@ class Main(http.Controller):
     def webhook_order_created_updated(self, **kwargs):
         order_data = json.loads(request.httprequest.data)
         source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
-        _logger.error(f"product_data.get('variations', False). {product_data.get('variations', False)}")
+        _logger.error(f"product_data.get('variations', False). ID = {order_data.get('id', False)} || status = {order_data.get('status', False)}")
         if order_data.get('variations', False):
             wooc_instance = request.env['woocommerce.instance'].search([]).filtered(lambda x: source_path in x.shop_url)
             if not wooc_instance:
