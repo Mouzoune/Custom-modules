@@ -333,7 +333,7 @@ class SaleOrder(models.Model):
                                         'price_unit': float(sol_item.get('price')) if sol_item.get('price') != '0.00' else 0.00,                                        
                                     }
 
-                                    sol_update = so_line.with_context(dont_send_data_to_wooc_from_write_method=True).write(so_line_data)
+                                    # sol_update = so_line.with_context(dont_send_data_to_wooc_from_write_method=True).write(so_line_data)
                             else:
                                 so_line = self.create_sale_order_line(sale_order.id, instance_id, sol_item)
                                 
