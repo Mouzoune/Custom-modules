@@ -333,7 +333,7 @@ class SaleOrder(models.Model):
                                         'price_unit': float(sol_item.get('price')) if sol_item.get('price') != '0.00' else 0.00,                                        
                                     }
 
-                                    # sol_update = so_line.with_context(dont_send_data_to_wooc_from_write_method=True).write(so_line_data)
+                                    sol_update = so_line.with_context(dont_send_data_to_wooc_from_write_method=True).write(so_line_data)
                             else:
                                 so_line = self.create_sale_order_line(sale_order.id, instance_id, sol_item)
                                 
@@ -810,8 +810,6 @@ class SaleOrder(models.Model):
     def write(self, values):
         rtn = super().write(values)
         if (values.get('woocomm_status', False) or values.get('woocomm_order_note', False)) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
-            _logger.error('=== self.env.context ===')
-            _logger.error(self.env.context)
             for rec in self:
                 self.woocomm_order_update_buttons(rec)
         return rtn
