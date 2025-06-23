@@ -379,30 +379,32 @@ class SaleOrder(models.Model):
                     #     sale_order.state = 'sale'
 
                     if order['shipping_lines']:
+                        if not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
 
-                        for sh_line in order['shipping_lines']:
-                            shipping = self.env['delivery.carrier'].sudo().search(['&', ('woocomm_method_id', '=', sh_line['method_id']), ('woocomm_instance_id', '=', instance_id.id)], limit=1)    
-                            
-                            so_line = self.env['sale.order.line'].sudo().search(['&', ('is_delivery', '=', True),(('order_id', '=', sale_order.id)), ('order_id.woocomm_instance_id', '=', instance_id.id)], limit=1)
-                            if shipping and shipping.product_id:
+
+                            for sh_line in order['shipping_lines']:
+                                shipping = self.env['delivery.carrier'].sudo().search(['&', ('woocomm_method_id', '=', sh_line['method_id']), ('woocomm_instance_id', '=', instance_id.id)], limit=1)    
                                 
-                                tax_id_list = self.add_tax_lines(instance_id, sh_line.get('taxes'))
-                                shipping_vals = {
-                                    'product_id': shipping.product_id.id,
-                                    'name':shipping.product_id.name,
-                                    'price_unit': float(sh_line['total']),
-                                    'is_delivery' : True,
-                                    'tax_id': [(6, 0, tax_id_list)]
-                                }
-                                if shipping.product_id.id == so_line.product_id.id:
-                                    _logger.info('\n\n so_shipping_line_data -- %s  \n\n' % (shipping_vals))
-                                    shipping_update = so_line.write(shipping_vals)
-                                else:
-                                    shipping_vals.update({"woocomm_so_line_id":sh_line['id'],'order_id': sale_order.id,})
-                                    so_line.unlink()
-                                    self.env['sale.order.line'].sudo().create(shipping_vals)
+                                so_line = self.env['sale.order.line'].sudo().search(['&', ('is_delivery', '=', True),(('order_id', '=', sale_order.id)), ('order_id.woocomm_instance_id', '=', instance_id.id)], limit=1)
+                                if shipping and shipping.product_id:
+                                    
+                                    tax_id_list = self.add_tax_lines(instance_id, sh_line.get('taxes'))
+                                    shipping_vals = {
+                                        'product_id': shipping.product_id.id,
+                                        'name':shipping.product_id.name,
+                                        'price_unit': float(sh_line['total']),
+                                        'is_delivery' : True,
+                                        'tax_id': [(6, 0, tax_id_list)]
+                                    }
+                                    if shipping.product_id.id == so_line.product_id.id:
+                                        _logger.info('\n\n so_shipping_line_data -- %s  \n\n' % (shipping_vals))
+                                        shipping_update = so_line.write(shipping_vals)
+                                    else:
+                                        shipping_vals.update({"woocomm_so_line_id":sh_line['id'],'order_id': sale_order.id,})
+                                        so_line.unlink()
+                                        self.env['sale.order.line'].sudo().create(shipping_vals)
 
-                                self.env.cr.commit()
+                                    self.env.cr.commit()
 
                     else:
                         #To remove shipping price, if the shipping not selected in the woocommerce site due shipping conditions.
