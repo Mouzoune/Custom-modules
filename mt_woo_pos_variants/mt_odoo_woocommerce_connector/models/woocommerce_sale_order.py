@@ -250,7 +250,7 @@ class SaleOrder(models.Model):
 
                 res_partner = self.env['res.partner'].sudo().search(
                         [('wooc_user_id', '=', order['customer_id']), ('woocomm_instance_id', '=', instance_id.id)], limit=1)
-        
+        _logger.error(f'res_partner      {res_partner}')
         if res_partner:
             
             dict_so = {}
