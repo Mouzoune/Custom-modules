@@ -810,6 +810,8 @@ class SaleOrder(models.Model):
     def write(self, values):
         rtn = super().write(values)
         if values.get('woocomm_status', False) or values.get('woocomm_order_note', False) and  not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+            _logger.error('=== self.env.context ===')
+            _logger.error(self.env.context)
             for rec in self:
                 self.woocomm_order_update_buttons(rec)
         return rtn
