@@ -356,7 +356,7 @@ class SaleOrder(models.Model):
                                         'price_unit': float(sol_item.get('price')) if sol_item.get('price') != '0.00' else 0.00,                                        
                                     }
 
-                                    sol_update = so_line.write(so_line_data)
+                                    sol_update = so_line.with_context(dont_send_data_to_wooc_from_write_method=True).write(so_line_data)
                             else:
                                 so_line = self.create_sale_order_line(sale_order.id, instance_id, sol_item)
                                 
@@ -490,7 +490,7 @@ class SaleOrder(models.Model):
                     cur_id = self.env['res.currency'].sudo().search([('name', '=', line_item.get('currency'))], limit=1)
                     dict_l['currency_id'] = cur_id.id
                     
-                return self.env['sale.order.line'].sudo().create(dict_l)
+                return self.env['sale.order.line'].with_context(dont_send_data_to_wooc_from_write_method=True).sudo().create(dict_l)
             
             return False
   
