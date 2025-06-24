@@ -18,7 +18,7 @@ from woocommerce import API
 
 
 class Main(http.Controller):
-    
+
 
     @http.route('/webhook/wp/<string:wc_action>/<int:wc_id>', type='http', auth='public', methods=['POST', 'GET'], csrf=False)
     def webhook_order(self, wc_action, wc_id, **kwargs):
@@ -142,7 +142,7 @@ class Main(http.Controller):
         order_data = json.loads(request.httprequest.data)
         source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
         _logger.error(f"Create/Update order     ID = {order_data.get('id', False)}")
-        wooc_instance = request.env['woocommerce.instance'].search([]).filtered(lambda x: source_path in x.shop_url)
+        wooc_instance = request.env['woocommerce.instance'].sudo().search([]).filtered(lambda x: source_path in x.shop_url)
         if not wooc_instance:
             wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
         order_id = order_data['id']
