@@ -109,7 +109,7 @@ class Product(models.Model):
     woocomm_image_ids = fields.One2many("woocommerce.product.image", "product_template_id")
 
     woocommerce_state_product_visibility = fields.Selection(
-        [('publish', 'Publier'), ('reparation', 'Matériel en réparation'), ('endommage', 'Inventaire endommagé'),
+        [('draft', 'Brouillon'), ('publish', 'Publier'), ('reparation', 'Matériel en réparation'), ('endommage', 'Inventaire endommagé'),
          ('reserve', 'Inventaire réservé')], default='publish')
     image_1920_filename = fields.Char()
 
