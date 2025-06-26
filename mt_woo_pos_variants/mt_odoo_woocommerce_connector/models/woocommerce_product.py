@@ -44,6 +44,10 @@ class ProductProduct(models.Model):
     woocomm_variant_ids = fields.One2many("woocommerce.product.variant", "product_variant_id")
     #image_1920_filename = fields.Char()
 
+    catalog_visibility = fields.Selection([
+        ('visible', 'Shop and search results — نتائج المتجر والبحث'), ('catalog', 'Shop only — المتجر فقط'),
+        ('search', 'Search results only — نتائج البحث فقط'), ('hidden', 'Hidden — مخفي')
+    ], default='visible', string="Catalog visibility عرض المنتج")
 
     @api.depends('list_price', 'price_extra')
     @api.depends_context('uom')
@@ -113,6 +117,11 @@ class Product(models.Model):
          ('reserve', 'Inventaire réservé')], default='publish')
     image_1920_filename = fields.Char()
 
+    catalog_visibility = fields.Selection([
+        ('visible', 'Shop and search results — نتائج المتجر والبحث'), ('catalog', 'Shop only — المتجر فقط'),
+        ('search', 'Search results only — نتائج البحث فقط'), ('hidden', 'Hidden — مخفي')
+    ], default='visible', string="Catalog visibility عرض المنتج")
+    
     def _cron_create_update_product(self):
         _logger.error('||=== _cron_create_update_product ===||')
         wooc_instance = self.env['woocommerce.instance'].search([], limit=1, order='id desc')

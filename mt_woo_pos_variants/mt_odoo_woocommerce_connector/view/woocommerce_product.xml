@@ -151,6 +151,8 @@
                 <field string="WooCommerce Regular Price" name="woocomm_regular_price" widget="monetary" />
                 <field name="woocomm_tag_ids" widget="many2many_tags"
                     options="{'no_create_edit': True}" />
+                <field name="catalog_visibility"/>
+
                 <field name="is_exported" readonly="1" />
                 <field name="wooc_id" string="WooCommerce Id" readonly="1" />
                 <field name="woocomm_instance_id" readonly ="is_exported == True"/>
