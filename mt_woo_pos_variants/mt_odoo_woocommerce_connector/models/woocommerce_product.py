@@ -271,13 +271,7 @@ class Product(models.Model):
         _logger.error(f"Write it 000 === {self.env.user}")
 
         _logger.error(f'self env context =====> {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
-        if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
-            user_admin = self.sudo().env.ref("base.user_admin")
-            context = user_admin.context_get()
-            self.env(user=2)
-            _logger.error(f"Write it ???? === {self.env.user}")
 
-            _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
         if values.get('catalog_visibility', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             _logger.error("catalog_visibility")
             self.with_context(catalog_visibility=values.get('catalog_visibility', False)).set_product_visibility()
@@ -297,8 +291,17 @@ class Product(models.Model):
                 self.with_context(status='publish').set_product_status()
         # super().write(values)
         _logger.error(f"Write it 111 === {self.env.user}")
+        if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+            user_admin = self.sudo().env.ref("base.user_admin")
+            context = user_admin.context_get()
+            self.env(user=2)
+            _logger.error(f"Write it ???? === {self.env.user}")
+            admin_env = request.env(user=1)
+            super(Product, admin_env.sudo()).write(values)
 
-        super(Product, self.sudo()).write(values)
+            _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
+        else:
+            super(Product, self.sudo()).write(values)
         self.sudo().env.cr.commit()
         _logger.error(f"Write it 222 === {self.env.user}")
 
