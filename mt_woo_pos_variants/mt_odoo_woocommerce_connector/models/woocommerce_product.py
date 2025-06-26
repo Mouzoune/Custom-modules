@@ -274,7 +274,9 @@ class Product(models.Model):
         if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             user_admin = self.sudo().env.ref("base.user_admin")
             context = user_admin.context_get()
-            self.env(user=user_admin, context=context)
+            self.env(user=2)
+            _logger.error(f"Write it ???? === {self.env.user}")
+
             _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
         if values.get('catalog_visibility', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             _logger.error("catalog_visibility")
