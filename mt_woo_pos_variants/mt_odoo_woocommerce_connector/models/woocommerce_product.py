@@ -121,7 +121,7 @@ class Product(models.Model):
         ('visible', 'Shop and search results — نتائج المتجر والبحث'), ('catalog', 'Shop only — المتجر فقط'),
         ('search', 'Search results only — نتائج البحث فقط'), ('hidden', 'Hidden — مخفي')
     ], default='visible', string="Catalog visibility عرض المنتج")
-    
+
     def _cron_create_update_product(self):
         _logger.error('||=== _cron_create_update_product ===||')
         wooc_instance = self.env['woocommerce.instance'].search([], limit=1, order='id desc')
@@ -225,6 +225,44 @@ class Product(models.Model):
     #         self.env.company.sudo().must_create_update_products = {}
     #         ctx['from_cron'] = False
     #
+    def set_product_status(self):
+        ''' Enable or Disable Product'''
+        woo_api = self.init_wc_api(self.woocomm_instance_id)
+
+        status = self.env.context.get('status')
+        product = woo_api.get("products/%s"%self.wooc_id,)
+        if product.status_code == 404:
+            self.is_product_active = False
+            self.is_exported = False
+            self.woocomm_product_status = 'draft'
+            self.env.cr.commit()
+
+            raise MissingError(_("Product Not Exist in WooCommerce, Please export first!!!"))
+
+        data = {"status": status,}
+
+        try:
+            result = woo_api.put("products/%s" %self.wooc_id, data)
+
+            if result.status_code == 200:
+                result_json = result.json()
+                self.woocomm_product_status = result_json['status']
+                self.is_product_active = True if result_json['status'] == 'publish' else False
+
+        except Exception as error:
+            _logger.info("Product Enable/Disable failed!! \n\n %s" % error)
+            raise UserError(_("Please check your connection and try again"))
+
+    def set_product_visibility(self):
+        woo_api = self.init_wc_api(self.woocomm_instance_id)
+        try:
+            result = woo_api.put("products/%s" %self.wooc_id, {"catalog_visibility": self.env.context.get('catalog_visibility')})
+            if result.status_code == 200:
+                result_json = result.json()
+                self.catalog_visibility = result_json['catalog_visibility']
+        except Exception as error:
+            _logger.info("Product Enable/Disable failed!! \n\n %s" % error)
+            raise UserError(_("Please check your connection and try again"))
 
 
     def write(self, values):
@@ -233,6 +271,9 @@ class Product(models.Model):
         _logger.error(f'self env context =====> {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
         if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
+        if values.get('catalog_visibility', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+            self.with_context(catalog_visibility=values.get('catalog_visibility', False)).set_product_visibility()
+
         if values.get('woocommerce_state_product_visibility', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             if values.get('woocommerce_state_product_visibility') != 'publish':
                 ctx['status'] = 'draft'
@@ -846,35 +887,6 @@ class Product(models.Model):
 
         return
 
-    def set_product_status(self):
-        ''' Enable or Disable Product'''
-        woo_api = self.init_wc_api(self.woocomm_instance_id)
-
-
-        status = self.env.context.get('status')
-
-        product = woo_api.get("products/%s"%self.wooc_id,)
-        if product.status_code == 404:
-            self.is_product_active = False
-            self.is_exported = False
-            self.woocomm_product_status = 'draft'
-            self.env.cr.commit()
-
-            raise MissingError(_("Product Not Exist in WooCommerce, Please export first!!!"))
-
-        data = {"status": status,}
-
-        try:
-            result = woo_api.put("products/%s" %self.wooc_id, data)
-
-            if result.status_code == 200:
-                result_json = result.json()
-                self.woocomm_product_status = result_json['status']
-                self.is_product_active = True if result_json['status'] == 'publish' else False
-
-        except Exception as error:
-            _logger.info("Product Enable/Disable failed!! \n\n %s" % error)
-            raise UserError(_("Please check your connection and try again"))
 
     def get_wooc_product_data(self, product_id, wooc_instance):
         woo_api = self.init_wc_api(wooc_instance)
