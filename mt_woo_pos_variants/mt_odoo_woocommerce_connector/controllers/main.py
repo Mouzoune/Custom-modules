@@ -119,7 +119,7 @@ class Main(http.Controller):
         source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
         _logger.error(f"Create/Update product     ID = {product_data.get('id', False)}")
         if product_data.get('variations', False):
-            wooc_instance = request.env['woocommerce.instance'].search([]).filtered(lambda x: source_path in x.shop_url)
+            wooc_instance = request.env['woocommerce.instance'].sudo().search([]).filtered(lambda x: source_path in x.shop_url)
             if not wooc_instance:
                 wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
             product_id = product_data['id']
