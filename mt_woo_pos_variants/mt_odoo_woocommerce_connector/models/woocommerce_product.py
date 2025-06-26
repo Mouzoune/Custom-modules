@@ -235,7 +235,7 @@ class Product(models.Model):
             self.is_product_active = False
             self.is_exported = False
             self.woocomm_product_status = 'draft'
-            self.env.cr.commit()
+            self.sudo().env.cr.commit()
 
             raise MissingError(_("Product Not Exist in WooCommerce, Please export first!!!"))
 
@@ -260,7 +260,7 @@ class Product(models.Model):
             if result.status_code == 200:
                 result_json = result.json()
                 # self.catalog_visibility = result_json['catalog_visibility']
-                self.env.cr.commit()
+                self.sudo().env.cr.commit()
         except Exception as error:
             _logger.info("Product Enable/Disable failed!! \n\n %s" % error)
             raise UserError(_("Please check your connection and try again"))
@@ -268,14 +268,18 @@ class Product(models.Model):
 
     def write(self, values):
         ctx = dict(self.env.context)
+        _logger.error(f"Write it 000 === {self.env.user}")
 
         _logger.error(f'self env context =====> {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
         if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
         if values.get('catalog_visibility', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+            _logger.error("catalog_visibility")
             self.with_context(catalog_visibility=values.get('catalog_visibility', False)).set_product_visibility()
 
         if values.get('woocommerce_state_product_visibility', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+            _logger.error("woocommerce_state_product_visibility")
+
             if values.get('woocommerce_state_product_visibility') != 'publish':
                 ctx['status'] = 'draft'
                 values['is_product_active'] = False
@@ -287,8 +291,10 @@ class Product(models.Model):
                 values['woocomm_product_status'] = 'publish'
                 self.with_context(status='publish').set_product_status()
         # super().write(values)
+        _logger.error(f"Write it 111 === {self.env.user}")
         super(Product, self.sudo()).write(values)
         self.sudo().env.cr.commit()
+        _logger.error(f"Write it 222 === {self.env.user}")
 
         if values.get('image_1920_filename', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             # woocomm_instance_id = self.env['woocommerce.instance'].search([], limit=1, order='id desc')
@@ -309,6 +315,7 @@ class Product(models.Model):
                     _logger.error('image updated successfully')
                 else:
                     _logger.error(f'image not updated {result.json()}')
+        _logger.error(f"Write it 333 === {self.env.user}")
 
 
     def init_wc_api(self, wooc_instance):
