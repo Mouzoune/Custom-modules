@@ -342,7 +342,7 @@ class Product(models.Model):
         _logger.error(url)
         get_next_page = True
         page = 1
-        while get_next_page and page <= 2:
+        while get_next_page:
             try:
                 products = woo_api.get(url, params={'orderby': 'id', 'order': 'asc','per_page': limit, 'page': page})
                 page += 1
