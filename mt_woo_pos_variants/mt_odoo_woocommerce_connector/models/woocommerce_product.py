@@ -292,12 +292,14 @@ class Product(models.Model):
         # super().write(values)
         _logger.error(f"Write it 111 === {self.env.user}")
         if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
-            user_admin = self.sudo().env.ref("base.user_admin")
-            context = user_admin.context_get()
-            self.env(user=2)
-            _logger.error(f"Write it ???? === {self.env.user}")
+            # user_admin = self.sudo().env.ref("base.user_admin")
+            # context = user_admin.context_get()
+            # self.env(user=2)
             admin_env = request.env(user=1)
+            _logger.error(f"Write it ???? === {self.env.user}")
+
             super(Product, admin_env.sudo()).write(values)
+            _logger.error(f"Write it ????11=== {self.env.user}")
 
             _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
         else:
