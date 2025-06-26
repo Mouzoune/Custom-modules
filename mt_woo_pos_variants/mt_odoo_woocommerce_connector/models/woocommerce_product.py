@@ -295,7 +295,7 @@ class Product(models.Model):
             # user_admin = self.sudo().env.ref("base.user_admin")
             # context = user_admin.context_get()
             # self.env(user=2)
-            admin_env = request.env(user=1)
+            admin_env = self.env(user=1)
             _logger.error(f"Write it ???? === {self.env.user}")
 
             super(Product, admin_env.sudo()).write(values)
