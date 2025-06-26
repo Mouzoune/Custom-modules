@@ -117,7 +117,8 @@ class Main(http.Controller):
         # Parse the JSON payload
         product_data = json.loads(request.httprequest.data)
         source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
-        if product_data.get('variations', False) or (not product_data.get('variations', False) and product_data.get('parent_id', 0) == 0):
+        # if product_data.get('variations', False) or (not product_data.get('variations', False) and product_data.get('parent_id', 0) == 0):
+        if product_data.get('variations', False):
             wooc_instance = request.env['woocommerce.instance'].sudo().search([]).filtered(lambda x: source_path == x.shop_url.replace('https://', ''))
             _logger.error(f"Create/Update product   Instance: {wooc_instance.display_name}   ID = {product_data.get('id', False)}")
             if not wooc_instance:
