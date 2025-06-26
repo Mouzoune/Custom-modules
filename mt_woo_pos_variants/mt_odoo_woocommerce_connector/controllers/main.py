@@ -141,6 +141,7 @@ class Main(http.Controller):
     def webhook_order_created_updated(self, **kwargs):
         order_data = json.loads(request.httprequest.data)
         source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
+        _logger.error('source_path = {source_path}')
         wooc_instance = request.env['woocommerce.instance'].sudo().search([]).filtered(lambda x: source_path in x.shop_url)
         _logger.error(f"Create/Update order  Instance: {wooc_instance.display_name}   ID = {order_data.get('id', False)}")
         if not wooc_instance:
