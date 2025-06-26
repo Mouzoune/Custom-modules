@@ -117,9 +117,9 @@ class Main(http.Controller):
         # Parse the JSON payload
         product_data = json.loads(request.httprequest.data)
         source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
-        _logger.error(f"Create/Update product     ID = {product_data.get('id', False)}")
-        if product_data.get('variations', False):
+        if product_data.get('variations', False) or (not product_data.get('variations', False) and product_data.get('parent_id', 0) == 0):
             wooc_instance = request.env['woocommerce.instance'].sudo().search([]).filtered(lambda x: source_path in x.shop_url)
+            _logger.error(f"Create/Update product   Instance: {wooc_instance.display_name}   ID = {product_data.get('id', False)}")
             if not wooc_instance:
                 wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
             product_id = product_data['id']
@@ -141,8 +141,8 @@ class Main(http.Controller):
     def webhook_order_created_updated(self, **kwargs):
         order_data = json.loads(request.httprequest.data)
         source_path = request.httprequest.headers.get('X-Wc-Webhook-Source').replace('https://', '').replace('/', '')
-        _logger.error(f"Create/Update order     ID = {order_data.get('id', False)}")
         wooc_instance = request.env['woocommerce.instance'].sudo().search([]).filtered(lambda x: source_path in x.shop_url)
+        _logger.error(f"Create/Update order  Instance: {wooc_instance.display_name}   ID = {order_data.get('id', False)}")
         if not wooc_instance:
             wooc_instance = request.env['woocommerce.instance'].sudo().search([], limit=1, order='id asc')
         order_id = order_data['id']
