@@ -259,7 +259,8 @@ class Product(models.Model):
             result = woo_api.put("products/%s" %self.wooc_id, {"catalog_visibility": self.env.context.get('catalog_visibility')})
             if result.status_code == 200:
                 result_json = result.json()
-                self.catalog_visibility = result_json['catalog_visibility']
+                # self.catalog_visibility = result_json['catalog_visibility']
+                self.env.cr.commit()
         except Exception as error:
             _logger.info("Product Enable/Disable failed!! \n\n %s" % error)
             raise UserError(_("Please check your connection and try again"))
