@@ -286,7 +286,8 @@ class Product(models.Model):
                 values['is_product_active'] = True
                 values['woocomm_product_status'] = 'publish'
                 self.with_context(status='publish').set_product_status()
-        super().write(values)
+        # super().write(values)
+        super(Product, self.sudo()).write(values)
         self.sudo().env.cr.commit()
 
         if values.get('image_1920_filename', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
