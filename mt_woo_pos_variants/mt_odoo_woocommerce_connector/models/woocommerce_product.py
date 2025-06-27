@@ -31,14 +31,17 @@ class IrModelAccess(models.Model):
 
     @api.model
     def check(self, model, mode='read', raise_exception=True):
-        if self.env.su or (self._uid == 4 and model == 'product.template'):
+        if self.env.su:
+            # User root have all accesses
+            return True
+
+        if (self._uid == 4 and model in ['product.template', 'product.category']):
             # User root have all accesses
             _logger.error(' === self.env.context.get("dont_send_data_to_wooc_from_write_method") ===')
             _logger.error(self.env.context.get("dont_send_data_to_wooc_from_write_method", False))
             _logger.error(self._uid)
             _logger.error(model)
             return True
-
         assert isinstance(model, str), 'Not a model name: %s' % (model,)
 
         # TransientModel records have no access rights, only an implicit access rule
