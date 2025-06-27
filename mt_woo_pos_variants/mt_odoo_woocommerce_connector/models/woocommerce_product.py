@@ -272,63 +272,64 @@ class Product(models.Model):
         _logger.error(f"Write it 000 === {self.env.user}")
 
         _logger.error(f'self env context =====> {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
+        if not values.get('taxes_id'):
 
-        if values.get('catalog_visibility', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
-            _logger.error("catalog_visibility")
-            self.with_context(catalog_visibility=values.get('catalog_visibility', False)).set_product_visibility()
+            if values.get('catalog_visibility', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+                _logger.error("catalog_visibility")
+                self.with_context(catalog_visibility=values.get('catalog_visibility', False)).set_product_visibility()
 
-        if values.get('woocommerce_state_product_visibility', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
-            _logger.error("woocommerce_state_product_visibility")
+            if values.get('woocommerce_state_product_visibility', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+                _logger.error("woocommerce_state_product_visibility")
 
-            if values.get('woocommerce_state_product_visibility') != 'publish':
-                ctx['status'] = 'draft'
-                values['is_product_active'] = False
-                values['woocomm_product_status'] = 'draft'
-                self.with_context(status='draft').set_product_status()
-            if values.get('woocommerce_state_product_visibility') == 'publish':
-                ctx['status'] = 'publish'
-                values['is_product_active'] = True
-                values['woocomm_product_status'] = 'publish'
-                self.with_context(status='publish').set_product_status()
-        # super().write(values)
-        _logger.error(f"Write it 111 === {self.env.user}")
-        if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
-            # user_admin = self.sudo().env.ref("base.user_admin")
-            # context = user_admin.context_get()
-            # self.env(user=2)
-            admin_env = self.env(user=1)
-            _logger.error(f"Write it ???? === {self.env.user}")
-            _logger.error(f"Write it ????admin_env === {admin_env}")
+                if values.get('woocommerce_state_product_visibility') != 'publish':
+                    ctx['status'] = 'draft'
+                    values['is_product_active'] = False
+                    values['woocomm_product_status'] = 'draft'
+                    self.with_context(status='draft').set_product_status()
+                if values.get('woocommerce_state_product_visibility') == 'publish':
+                    ctx['status'] = 'publish'
+                    values['is_product_active'] = True
+                    values['woocomm_product_status'] = 'publish'
+                    self.with_context(status='publish').set_product_status()
+            # super().write(values)
+            _logger.error(f"Write it 111 === {self.env.user}")
+            if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+                # user_admin = self.sudo().env.ref("base.user_admin")
+                # context = user_admin.context_get()
+                # self.env(user=2)
+                admin_env = self.env(user=1)
+                _logger.error(f"Write it ???? === {self.env.user}")
+                _logger.error(f"Write it ????admin_env === {admin_env}")
 
-            super(Product, self.with_user(SUPERUSER_ID).sudo()).write(values)
-            _logger.error(f"Write it ????11=== {self.env.user}")
+                super(Product, self.with_user(SUPERUSER_ID).sudo()).write(values)
+                _logger.error(f"Write it ????11=== {self.env.user}")
 
-            _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
-        else:
-            super(Product, self.sudo()).write(values)
-            self.sudo().env.cr.commit()
-        _logger.error(f"Write it 222 === {self.env.user}")
+                _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
+            else:
+                super(Product, self.sudo()).write(values)
+                self.sudo().env.cr.commit()
+            _logger.error(f"Write it 222 === {self.env.user}")
 
-        if values.get('image_1920_filename', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
-            # woocomm_instance_id = self.env['woocommerce.instance'].search([], limit=1, order='id desc')
-            # wooc_instance = self.env['woocommerce.instance'].search([], limit=1, order='id desc')
-            woocomm_instance_id = self.woocomm_instance_id
-            woo_api = self.init_wc_api(woocomm_instance_id)
-            _logger.error('new image_1920 was added')
-            if self.wooc_id:
-                data = {}
-                base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-                #src = f'{base_url}/web/image?model=product.template&id={self.id}&field=image_128'
-                src = f'{base_url}/web/image/product.template/{self.id}/image_128/{self.image_1920_filename}'
+            if values.get('image_1920_filename', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+                # woocomm_instance_id = self.env['woocommerce.instance'].search([], limit=1, order='id desc')
+                # wooc_instance = self.env['woocommerce.instance'].search([], limit=1, order='id desc')
+                woocomm_instance_id = self.woocomm_instance_id
+                woo_api = self.init_wc_api(woocomm_instance_id)
+                _logger.error('new image_1920 was added')
+                if self.wooc_id:
+                    data = {}
+                    base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                    #src = f'{base_url}/web/image?model=product.template&id={self.id}&field=image_128'
+                    src = f'{base_url}/web/image/product.template/{self.id}/image_128/{self.image_1920_filename}'
 
-                data['images'] = [{'src': src}]
+                    data['images'] = [{'src': src}]
 
-                result = woo_api.put("products/%s" % int(self.wooc_id), data)
-                if result.status_code == 200:
-                    _logger.error('image updated successfully')
-                else:
-                    _logger.error(f'image not updated {result.json()}')
-        _logger.error(f"Write it 333 === {self.env.user}")
+                    result = woo_api.put("products/%s" % int(self.wooc_id), data)
+                    if result.status_code == 200:
+                        _logger.error('image updated successfully')
+                    else:
+                        _logger.error(f'image not updated {result.json()}')
+            _logger.error(f"Write it 333 === {self.env.user}")
 
 
     def init_wc_api(self, wooc_instance):
