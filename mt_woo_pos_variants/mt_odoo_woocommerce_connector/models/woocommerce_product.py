@@ -268,6 +268,7 @@ class Product(models.Model):
 
     def write(self, values):
         ctx = dict(self.env.context)
+        _logger.error(f"Values it 000 === {values}")
         _logger.error(f"Write it 000 === {self.env.user}")
 
         _logger.error(f'self env context =====> {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
@@ -621,9 +622,11 @@ class Product(models.Model):
                     variant_options.append(v_attr['option'])
 
             for v_item in product_variant:
-                if v_item.product_template_attribute_value_ids:
+                v_item = v_item.sudo()
+
+                if v_item.sudo().product_template_attribute_value_ids:
                     list_values = []
-                    for rec in v_item.product_template_attribute_value_ids:
+                    for rec in v_item.sudo().product_template_attribute_value_ids:
                         list_values.append(rec.name)
                     if set(variant_options).issubset(list_values):
                         v_item.default_code = variant['sku']
