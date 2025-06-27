@@ -369,10 +369,10 @@ class Product(models.Model):
                 values['woocomm_product_status'] = 'publish'
                 self.with_context(status='publish').set_product_status()
         # if self.env.context.get("dont_send_data_to_wooc_from_write_method", False):
-        super(Product, self.with_user(self.env.ref("base.user_admin")).sudo()).write(values)
+        super().write(values)
         # else:
         #     super().write(values)
-        self.with_user(self.env.ref("base.user_admin")).sudo().env.cr.commit()
+        self.sudo().env.cr.commit()
         _logger.error(f"Write it 222 === {self.env.user}")
 
         if values.get('image_1920_filename', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
@@ -541,7 +541,7 @@ class Product(models.Model):
         if p_item['categories']:
             for cat in p_item['categories']:
 
-                categ = self.env['product.category'].sudo().search([('wooc_id', '=', cat['id']), ('woocomm_instance_id', '=', wooc_instance.id)], limit=1)
+                categ = self.env['product.category'].with_user(self.env.ref("base.user_admin")).sudo().search([('wooc_id', '=', cat['id']), ('woocomm_instance_id', '=', wooc_instance.id)], limit=1)
                 if categ:
                     dict_p['categ_id'] = categ[0].id
                 else:
@@ -554,7 +554,7 @@ class Product(models.Model):
                     dict_cat['is_exported'] = True
                     dict_cat['woocomm_instance_id'] = wooc_instance.id
 
-                    category = self.env['product.category'].sudo().create(dict_cat)
+                    category = self.env['product.category'].with_user(self.env.ref("base.user_admin")).sudo().create(dict_cat)
                     dict_p['categ_id'] = category.id
 
                 break
