@@ -270,6 +270,12 @@ class Product(models.Model):
         ctx = dict(self.env.context)
         _logger.error(f"Values it 000 === {values}")
         _logger.error(f"Write it 000 === {self.env.user}")
+        if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+            # user_admin = self.sudo().env.ref("base.user_admin")
+            # context = user_admin.context_get()
+            # self.env(user=2)
+            group = env.ref('stock.group_stock_user')
+            user.write({'groups_id': [(4, group.id)]})
 
         _logger.error(f'self env context =====> {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
         if not values.get('taxes_id'):
@@ -297,13 +303,14 @@ class Product(models.Model):
                 # user_admin = self.sudo().env.ref("base.user_admin")
                 # context = user_admin.context_get()
                 # self.env(user=2)
+                
                 admin_env = self.env(user=1)
                 _logger.error(f"Write it ???? === {self.env.user}")
                 _logger.error(f"Write it ????admin_env === {admin_env}")
 
                 super(Product, self.with_user(SUPERUSER_ID).sudo()).write(values)
                 _logger.error(f"Write it ????11=== {self.env.user}")
-
+                user.write({'groups_id': [(3, group.id)]})
                 _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
             else:
                 super(Product, self.sudo()).write(values)
