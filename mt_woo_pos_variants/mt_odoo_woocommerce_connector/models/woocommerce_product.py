@@ -298,22 +298,22 @@ class Product(models.Model):
                     values['woocomm_product_status'] = 'publish'
                     self.with_context(status='publish').set_product_status()
             # super().write(values)
-            _logger.error(f"Write it 111 === {self.env.user}")
-            if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
-                # user_admin = self.sudo().env.ref("base.user_admin")
-                # context = user_admin.context_get()
-                # self.env(user=2)
+            # _logger.error(f"Write it 111 === {self.env.user}")
+            # if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+            #     # user_admin = self.sudo().env.ref("base.user_admin")
+            #     # context = user_admin.context_get()
+            #     # self.env(user=2)
                 
-                admin_env = self.env(user=1)
-                _logger.error(f"Write it ???? === {self.env.user}")
-                _logger.error(f"Write it ????admin_env === {admin_env}")
+            #     admin_env = self.env(user=1)
+            #     _logger.error(f"Write it ???? === {self.env.user}")
+            #     _logger.error(f"Write it ????admin_env === {admin_env}")
 
-                super(Product, self.with_user(SUPERUSER_ID).sudo()).write(values)
-                _logger.error(f"Write it ????11=== {self.env.user}")
-                _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
-            else:
-                super(Product, self.sudo()).write(values)
-                self.sudo().env.cr.commit()
+            #     super(Product, self.with_user(SUPERUSER_ID).sudo()).write(values)
+            #     _logger.error(f"Write it ????11=== {self.env.user}")
+            #     _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
+            # else:
+            super().write(values)
+            self.sudo().env.cr.commit()
             _logger.error(f"Write it 222 === {self.env.user}")
 
             if values.get('image_1920_filename', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
