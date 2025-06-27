@@ -529,8 +529,14 @@ class Product(models.Model):
             product = self.env['product.template'].sudo().with_context(dont_send_data_to_wooc_from_write_method=True).create(dict_p)
         else:
             _logger.error(f'/product////////////// {product} ---')
+            
+            if self.env.context.get('dont_send_data_to_wooc_from_write_method', False):
+                admin_env = request.env(user=1)
+                product_admin_env = admin_env['product.template'].sudo().browse(product.id)
+                product_admin_env.sudo().with_context(dont_send_data_to_wooc_from_write_method=True).write(dict_p)
+            else:
 
-            product.sudo().with_context(dont_send_data_to_wooc_from_write_method=True).write(dict_p)
+                product.sudo().with_context(dont_send_data_to_wooc_from_write_method=True).write(dict_p)
         _logger.error('/22222////////////// dont_send_data_to_wooc_from_write_method ---')
 
         # self.env.cr.commit()
