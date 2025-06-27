@@ -299,7 +299,7 @@ class Product(models.Model):
                     self.with_context(status='publish').set_product_status()
             # super().write(values)
             # _logger.error(f"Write it 111 === {self.env.user}")
-            # if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+            if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             #     # user_admin = self.sudo().env.ref("base.user_admin")
             #     # context = user_admin.context_get()
             #     # self.env(user=2)
@@ -308,11 +308,11 @@ class Product(models.Model):
             #     _logger.error(f"Write it ???? === {self.env.user}")
             #     _logger.error(f"Write it ????admin_env === {admin_env}")
 
-            #     super(Product, self.with_user(SUPERUSER_ID).sudo()).write(values)
+                super(Product, self.with_user(self.env.ref("base.user_admin").sudo()).write(values)
             #     _logger.error(f"Write it ????11=== {self.env.user}")
             #     _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
-            # else:
-            super().write(values)
+            else:
+                super().write(values)
             self.sudo().env.cr.commit()
             _logger.error(f"Write it 222 === {self.env.user}")
 
