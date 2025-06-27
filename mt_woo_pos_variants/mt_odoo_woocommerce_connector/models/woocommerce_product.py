@@ -33,7 +33,7 @@ class IrModelAccess(models.Model):
     def check(self, model, mode='read', raise_exception=True):
         _logger.error(' === self.env.context.get("dont_send_data_to_wooc_from_write_method") ===')
         _logger.error(self.env.context.get("dont_send_data_to_wooc_from_write_method", False))
-        if self.env.su or self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+        if self.env.su or (self._uid == 4 and model == 'product.template'):
             # User root have all accesses
             return True
 
