@@ -136,7 +136,7 @@ class Main(http.Controller):
             product_data_item = product.json()
 
             # admin_env = request.env(user=1)
-            request.env['product.template'].with_user(self.env.ref("base.user_admin")).sudo().with_context(dont_send_data_to_wooc_from_write_method=True).create_product(product_data_item[0], wooc_instance)
+            request.env['product.template'].with_user(request.env.ref("base.user_admin")).sudo().with_context(dont_send_data_to_wooc_from_write_method=True).create_product(product_data_item[0], wooc_instance)
         return {'status': 'success', 'message': 'Product processed successfully'}
 
 
