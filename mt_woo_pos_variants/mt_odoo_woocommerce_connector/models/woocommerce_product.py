@@ -570,6 +570,7 @@ class Product(models.Model):
                                     'value_ids': [(6, 0, [p_a for p_a in p_attr_val if p_a])],
                                     'product_tmpl_id': product.id
                                 })
+        _logger.error('/2 PRE ---')
 
         # syn product images             
         if p_item['images'] and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
@@ -581,7 +582,7 @@ class Product(models.Model):
                     main_image = False
 
         if p_item['variations']:
-            self.with_context(dont_send_data_to_wooc_from_write_method=True).create_product_variations(product, wooc_instance)
+            self.sudo().with_context(dont_send_data_to_wooc_from_write_method=True).create_product_variations(product, wooc_instance)
         else :
             _logger.error('|| Update product variations ||')
 
@@ -622,6 +623,7 @@ class Product(models.Model):
                     variant_options.append(v_attr['option'])
 
             for v_item in product_variant:
+                _logger.error(f'//////////////////// {v_item}')
                 v_item = v_item.sudo()
 
                 if v_item.sudo().product_template_attribute_value_ids:
@@ -629,17 +631,17 @@ class Product(models.Model):
                     for rec in v_item.sudo().product_template_attribute_value_ids:
                         list_values.append(rec.name)
                     if set(variant_options).issubset(list_values):
-                        v_item.default_code = variant['sku']
-                        v_item.is_exported = True
-                        v_item.taxes_id = [(6, 0, [])]
+                        v_item.sudo().default_code = variant['sku']
+                        v_item.sudo().is_exported = True
+                        v_item.sudo().taxes_id = [(6, 0, [])]
 
-                        v_item.woocomm_instance_id = wooc_instance.id
-                        v_item.woocomm_variant_id = variant['id']
-                        v_item.woocomm_regular_price = float(variant['regular_price']) if variant['regular_price'] else 0.0
-                        v_item.woocomm_sale_price = float(variant['sale_price']) if variant['sale_price'] else 0.0
-                        v_item.woocomm_varient_description = variant['description']
-                        v_item.woocomm_stock_quantity = variant['stock_quantity']
-                        v_item.woocomm_stock_status = variant['stock_status']
+                        v_item.sudo().woocomm_instance_id = wooc_instance.id
+                        v_item.sudo().woocomm_variant_id = variant['id']
+                        v_item.sudo().woocomm_regular_price = float(variant['regular_price']) if variant['regular_price'] else 0.0
+                        v_item.sudo().woocomm_sale_price = float(variant['sale_price']) if variant['sale_price'] else 0.0
+                        v_item.sudo().woocomm_varient_description = variant['description']
+                        v_item.sudo().woocomm_stock_quantity = variant['stock_quantity']
+                        v_item.sudo().woocomm_stock_status = variant['stock_status']
 
                         if variant['image'] and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
                             if variant['image']['src']:
