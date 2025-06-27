@@ -31,10 +31,12 @@ class IrModelAccess(models.Model):
 
     @api.model
     def check(self, model, mode='read', raise_exception=True):
-        _logger.error(' === self.env.context.get("dont_send_data_to_wooc_from_write_method") ===')
-        _logger.error(self.env.context.get("dont_send_data_to_wooc_from_write_method", False))
         if self.env.su or (self._uid == 4 and model == 'product.template'):
             # User root have all accesses
+            _logger.error(' === self.env.context.get("dont_send_data_to_wooc_from_write_method") ===')
+            _logger.error(self.env.context.get("dont_send_data_to_wooc_from_write_method", False))
+            _logger.error(self._uid)
+            _logger.error(model)
             return True
 
         assert isinstance(model, str), 'Not a model name: %s' % (model,)
