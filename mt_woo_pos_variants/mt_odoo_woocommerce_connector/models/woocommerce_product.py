@@ -295,7 +295,7 @@ class Product(models.Model):
                 super(Product, self.with_user(self.env.ref("base.user_admin")).sudo()).write(values)
             else:
                 super().write(values)
-            self.sudo().env.cr.commit()
+            self.with_user(self.env.ref("base.user_admin")).sudo().env.cr.commit()
             _logger.error(f"Write it 222 === {self.env.user}")
 
             if values.get('image_1920_filename', False) and not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
