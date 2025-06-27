@@ -521,7 +521,8 @@ class Product(models.Model):
                     write_tag_value = existing_tag.sudo().write(dict_value)
                     p_tags.append(existing_tag.id)
             dict_p['woocomm_tag_ids'] = [(4, val) for val in p_tags]
-            
+        _logger.error(f'====================')
+
         product = self.env['product.template'].sudo().search([('wooc_id', '=', p_item['id']), ('woocomm_instance_id', '=', wooc_instance.id)],limit=1)
         _logger.error(f'///////////////. product {product}')
 
