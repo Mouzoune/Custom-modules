@@ -15,7 +15,7 @@ import time
 from woocommerce import API
 from urllib.request import urlopen
 from odoo.exceptions import UserError, MissingError
-from odoo import models, api, fields, _, SUPERUSER_ID
+from odoo import models, api, fields, _, SUPERUSER_ID, _lt
 from odoo.tools import config
 from bs4 import BeautifulSoup
 config['limit_time_real'] = 10000000
