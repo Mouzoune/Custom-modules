@@ -270,7 +270,7 @@ class Product(models.Model):
         ctx = dict(self.env.context)
         _logger.error(f"Values it 000 === {values}")
         _logger.error(f"Write it 000 === {self.env.user}")
-
+        self.with_user(self.env.ref("base.user_admin"))
         _logger.error(f'self env context =====> {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
         if not values.get('taxes_id'):
 
