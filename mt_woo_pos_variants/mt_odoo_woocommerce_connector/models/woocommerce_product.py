@@ -275,7 +275,7 @@ class Product(models.Model):
             # context = user_admin.context_get()
             # self.env(user=2)
             group = self.sudo().env.ref('stock.group_stock_user')
-            user.write({'groups_id': [(4, group.id)]})
+            self.sudo().env.user.write({'groups_id': [(4, group.id)]})
 
         _logger.error(f'self env context =====> {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
         if not values.get('taxes_id'):
@@ -310,7 +310,7 @@ class Product(models.Model):
 
                 super(Product, self.with_user(SUPERUSER_ID).sudo()).write(values)
                 _logger.error(f"Write it ????11=== {self.env.user}")
-                user.write({'groups_id': [(3, group.id)]})
+                self.sudo().env.user.write({'groups_id': [(3, group.id)]})
                 _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
             else:
                 super(Product, self.sudo()).write(values)
