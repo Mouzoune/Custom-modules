@@ -299,7 +299,7 @@ class Product(models.Model):
                     self.with_context(status='publish').set_product_status()
             # super().write(values)
             # _logger.error(f"Write it 111 === {self.env.user}")
-            if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+            if self.env.context.get("dont_send_data_to_wooc_from_write_method", False):
             #     # user_admin = self.sudo().env.ref("base.user_admin")
             #     # context = user_admin.context_get()
             #     # self.env(user=2)
