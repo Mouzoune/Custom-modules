@@ -169,6 +169,7 @@ class Product(models.Model):
         res['detailed_type'] = "product"
 
         return res
+    name = fields.Char('Name', index='trigram', required=True, translate=False)
 
     wooc_id = fields.Char('WooCommerce ID')
     woocomm_regular_price = fields.Float('WooCommerce Regular Price')
