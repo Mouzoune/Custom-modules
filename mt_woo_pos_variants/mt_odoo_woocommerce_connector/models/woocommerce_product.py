@@ -536,7 +536,7 @@ class Product(models.Model):
             #     product_admin_env.sudo().with_context(dont_send_data_to_wooc_from_write_method=True).write(dict_p)
             # else:
 
-            product.sudo().with_context(dont_send_data_to_wooc_from_write_method=True).write(dict_p)
+            product.with_user(self.env.ref("base.user_admin")).sudo().with_context(dont_send_data_to_wooc_from_write_method=True).write(dict_p)
         _logger.error('/22222////////////// dont_send_data_to_wooc_from_write_method ---')
 
         # self.env.cr.commit()
