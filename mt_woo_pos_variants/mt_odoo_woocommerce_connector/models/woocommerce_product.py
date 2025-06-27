@@ -519,6 +519,8 @@ class Product(models.Model):
         if not product:
             product = self.env['product.template'].sudo().with_context(dont_send_data_to_wooc_from_write_method=True).create(dict_p)
         else:
+            _logger.error(f'/product////////////// {product} ---')
+
             product.sudo().with_context(dont_send_data_to_wooc_from_write_method=True).write(dict_p)
         _logger.error('/22222////////////// dont_send_data_to_wooc_from_write_method ---')
 
