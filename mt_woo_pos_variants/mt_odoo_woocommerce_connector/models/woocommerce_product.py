@@ -308,7 +308,7 @@ class Product(models.Model):
             #     _logger.error(f"Write it ???? === {self.env.user}")
             #     _logger.error(f"Write it ????admin_env === {admin_env}")
 
-                super(Product, self.with_user(self.env.ref("base.user_admin").sudo()).write(values)
+                super(Product, self.with_user(self.env.ref("base.user_admin")).sudo()).write(values)
             #     _logger.error(f"Write it ????11=== {self.env.user}")
             #     _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
             else:
