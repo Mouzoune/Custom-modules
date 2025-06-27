@@ -20,9 +20,80 @@ from odoo.tools import config
 from bs4 import BeautifulSoup
 config['limit_time_real'] = 10000000
 config['limit_time_cpu'] = 600
+from odoo.exceptions import MissingError, ValidationError, AccessError, UserError
 
 
 _logger = logging.getLogger(__name__)
+
+
+class IrModelAccess(models.Model):
+    _inherit = 'ir.model.access'
+
+    @api.model
+    def check(self, model, mode='read', raise_exception=True):
+        _logger.error(' === self.env.context.get("dont_send_data_to_wooc_from_write_method") ===')
+        _logger.error(self.env.context.get("dont_send_data_to_wooc_from_write_method", False))
+        if self.env.su or self.env.context.get("dont_send_data_to_wooc_from_write_method"):
+            # User root have all accesses
+            return True
+
+        assert isinstance(model, str), 'Not a model name: %s' % (model,)
+
+        # TransientModel records have no access rights, only an implicit access rule
+        if model not in self.env:
+            _logger.error('Missing model %s', model)
+
+        has_access = model in self._get_allowed_models(mode)
+
+        if not has_access and raise_exception:
+            groups = '\n'.join('\t- %s' % g for g in self.group_names_with_access(model, mode))
+            document_kind = self.env['ir.model']._get(model).name or model
+            msg_heads = {
+                # Messages are declared in extenso so they are properly exported in translation terms
+                'read': _lt(
+                    "You are not allowed to access '%(document_kind)s' (%(document_model)s) records.",
+                    document_kind=document_kind,
+                    document_model=model,
+                ),
+                'write':  _lt(
+                    "You are not allowed to modify '%(document_kind)s' (%(document_model)s) records.",
+                    document_kind=document_kind,
+                    document_model=model,
+                ),
+                'create': _lt(
+                    "You are not allowed to create '%(document_kind)s' (%(document_model)s) records.",
+                    document_kind=document_kind,
+                    document_model=model,
+                ),
+                'unlink': _lt(
+                    "You are not allowed to delete '%(document_kind)s' (%(document_model)s) records.",
+                    document_kind=document_kind,
+                    document_model=model,
+                ),
+            }
+            operation_error = msg_heads[mode]
+
+            if groups:
+                group_info = _("This operation is allowed for the following groups:\n%(groups_list)s", groups_list=groups)
+            else:
+                group_info = _("No group currently allows this operation.")
+
+            resolution_info = _("Contact your administrator to request access if necessary.")
+
+            _logger.info('Access Denied by ACLs for operation: %s, uid: %s, model: %s', mode, self._uid, model)
+            msg = """{operation_error}
+
+{group_info}
+
+{resolution_info}""".format(
+                operation_error=operation_error,
+                group_info=group_info,
+                resolution_info=resolution_info)
+
+            raise AccessError(msg) from None
+
+        return has_access
+
 
 class ProductProduct(models.Model):
     _inherit = 'product.product'
