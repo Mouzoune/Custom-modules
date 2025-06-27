@@ -270,12 +270,6 @@ class Product(models.Model):
         ctx = dict(self.env.context)
         _logger.error(f"Values it 000 === {values}")
         _logger.error(f"Write it 000 === {self.env.user}")
-        # if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
-            # user_admin = self.sudo().env.ref("base.user_admin")
-            # context = user_admin.context_get()
-            # self.env(user=2)
-            # group = self.sudo().env.ref('stock.group_stock_user')
-            # self.sudo().env.user.write({'groups_id': [(4, group.id)]})
 
         _logger.error(f'self env context =====> {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
         if not values.get('taxes_id'):
@@ -297,20 +291,8 @@ class Product(models.Model):
                     values['is_product_active'] = True
                     values['woocomm_product_status'] = 'publish'
                     self.with_context(status='publish').set_product_status()
-            # super().write(values)
-            # _logger.error(f"Write it 111 === {self.env.user}")
             if self.env.context.get("dont_send_data_to_wooc_from_write_method", False):
-            #     # user_admin = self.sudo().env.ref("base.user_admin")
-            #     # context = user_admin.context_get()
-            #     # self.env(user=2)
-                
-            #     admin_env = self.env(user=1)
-            #     _logger.error(f"Write it ???? === {self.env.user}")
-            #     _logger.error(f"Write it ????admin_env === {admin_env}")
-
                 super(Product, self.with_user(self.env.ref("base.user_admin")).sudo()).write(values)
-            #     _logger.error(f"Write it ????11=== {self.env.user}")
-            #     _logger.error(f'WRITE METHOD WITH:  self.env.context.get dont_send_data_to_wooc_from_write_method')
             else:
                 super().write(values)
             self.sudo().env.cr.commit()
@@ -449,11 +431,7 @@ class Product(models.Model):
 
     def create_product(self, p_item, wooc_instance):
         _logger.error(f'self env context =====> {self.env.context}   {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
-        # if self.env.context.get("dont_send_data_to_wooc_from_write_method"):
-        #     _logger.error(f'Return from if self.env.context.get dont_send_data_to_wooc_from_write_method')
-        #     product = self.env['product.template'].search([], limit=1)
-        #     product.write({'name': product.name})
-        #     return True
+
         _logger.error(f'create_product  == {p_item["name"]}.   {wooc_instance.id}. {wooc_instance.display_name}')
 
         p_tags = []
@@ -522,20 +500,14 @@ class Product(models.Model):
             dict_p['woocomm_tag_ids'] = [(4, val) for val in p_tags]
         _logger.error(f'====================')
 
-        product = self.env['product.template'].sudo().search([('wooc_id', '=', p_item['id']), ('woocomm_instance_id', '=', wooc_instance.id)],limit=1)
+        product = self.env['product.template'].with_user(self.env.ref("base.user_admin")).sudo().search([('wooc_id', '=', p_item['id']), ('woocomm_instance_id', '=', wooc_instance.id)],limit=1)
         _logger.error(f'///////////////. product {product}')
 
         if not product:
-            product = self.env['product.template'].sudo().with_context(dont_send_data_to_wooc_from_write_method=True).create(dict_p)
+            product = self.env['product.template'].with_user(self.env.ref("base.user_admin")).sudo().with_context(dont_send_data_to_wooc_from_write_method=True).create(dict_p)
         else:
             _logger.error(f'/product////////////// {product} ---')
             
-            # if self.env.context.get('dont_send_data_to_wooc_from_write_method', False):
-            #     # admin_env = self.env(user=1)
-            #     product_admin_env = admin_env['product.template'].sudo().browse(product.id)
-            #     product_admin_env.sudo().with_context(dont_send_data_to_wooc_from_write_method=True).write(dict_p)
-            # else:
-
             product.with_user(self.env.ref("base.user_admin")).sudo().with_context(dont_send_data_to_wooc_from_write_method=True).write(dict_p)
         _logger.error('/22222////////////// dont_send_data_to_wooc_from_write_method ---')
 
@@ -790,13 +762,13 @@ class Product(models.Model):
                     data = {"wooc_id" : wc_variation["id"], "woocomm_instance_id" : wooc_instance.id, "product_template_id" : product.id,"product_variant_id": variant.id, "is_manage_stock" : wc_variation["manage_stock"], "wooc_stock_quantity": wc_variation["stock_quantity"], }
 
                     if wooc_variant:
-                        wooc_variant.sudo().write(data)
+                        wooc_variant.with_user(self.env.ref("base.user_admin")).sudo().write(data)
                     else:
                         #create variant only if attribute exist
                         if has_attribute:
-                            self.env['woocommerce.product.variant'].sudo().create(data)
+                            self.env['woocommerce.product.variant'].with_user(self.env.ref("base.user_admin")).sudo().create(data)
 
-                    variant.sudo().write({'woocomm_variant_id' : wc_variation["id"],
+                    variant.with_user(self.env.ref("base.user_admin")).sudo().write({'woocomm_variant_id' : wc_variation["id"],
                                    'woocomm_regular_price' : wc_variation["regular_price"],
                                    'woocomm_sale_price' : wc_variation["sale_price"],
                                    'is_exported' : True})
@@ -835,7 +807,7 @@ class Product(models.Model):
             variant_exist = self.env['woocommerce.product.variant'].sudo().search([('product_template_id', '=', product.id),("wooc_id", "=", variation["id"])])
 
         if variant_exist:
-            variant_exist.sudo().write(data)
+            variant_exist.with_user(self.env.ref("base.user_admin")).sudo().write(data)
         else:
             self.env['woocommerce.product.variant'].sudo().create(data)
 
@@ -976,7 +948,7 @@ class Product(models.Model):
                 if not ext_image:
                     ext_image = self.env['woocommerce.product.image'].sudo().create(img_vals)
                 else:
-                    ext_image.sudo().write(img_vals)
+                    ext_image.sudo().with_user(self.env.ref("base.user_admin")).write(img_vals)
 
                 self.env.cr.commit()
         except Exception as error:
