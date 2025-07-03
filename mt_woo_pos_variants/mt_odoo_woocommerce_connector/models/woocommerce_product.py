@@ -141,9 +141,9 @@ class ProductProduct(models.Model):
 
             if product.woocomm_regular_price or product.woocomm_sale_price:
                 if product.woocomm_regular_price and not product.woocomm_sale_price:
-                    product.lst_price = int(product.woocomm_regular_price)
+                    product.lst_price = float(product.woocomm_regular_price)
                 if product.woocomm_sale_price:
-                    product.lst_price = int(product.woocomm_sale_price)
+                    product.lst_price = float(product.woocomm_sale_price)
 
                 
     def _compute_product_price_extra(self):
@@ -203,105 +203,6 @@ class Product(models.Model):
         _logger.error('||=== _cron_create_update_product ===||')
         wooc_instance = self.env['woocommerce.instance'].search([], limit=1, order='id desc')
 
-        # self.import_product(wooc_instance, is_force_update=True)
-
-
-    # # Farid products
-    # def get_all_products(self, wooc_instance, limit=100):
-    #     woo_api = self.init_wc_api(wooc_instance)
-    #
-    #     # exist = self.env['product.template'].sudo().search([('wooc_id', 'in', existed_products)])
-    #     url = f"products"
-    #     page = 1
-    #     params = {}
-    #     if self.env.context.get('from_corn', False):
-    #         existed_products = list(self.env.company.sudo().must_create_update_products.values())
-    #         _logger.error(existed_products)
-    #         if existed_products:
-    #             params, url = {}, f"products" + f'?include={",".join(str(product) for product in existed_products)}'
-    #
-    #     _logger.error(url)
-    #     get_next_page = True
-    #     while get_next_page:
-    #         try:
-    #             if not existed_products:
-    #                 params = {'orderby': 'id', 'order': 'asc', 'per_page': limit, 'page': page}
-    #
-    #             products = woo_api.get(url, params=params)
-    #             page += 1
-    #
-    #         except Exception as error:
-    #             _logger.info('\n\n\n\n  Error Products on page=  %s \n\n\n\n' % (page) )
-    #             time.sleep(2)
-    #             continue
-    #
-    #         if products.status_code == 200:
-    #             if products.content:
-    #                 parsed_products = products.json()
-    #                 for product in parsed_products:
-    #                     yield product
-    #
-    #                 if len(parsed_products) < limit:
-    #                     get_next_page = False
-    #             else:
-    #                 get_next_page = False
-    #         else:
-    #             get_next_page = False
-    #
-    # def get_all_products_variants(self, p_id, wooc_instance, limit=20):
-    #     woo_api = self.init_wc_api(wooc_instance)
-    #
-    #     url = "products/%s/variations" %p_id
-    #     get_next_page = True
-    #     page = 1
-    #     while get_next_page:
-    #         try:
-    #             products = woo_api.get(url, params={'orderby': 'id', 'order': 'asc','per_page': limit, 'page': page})
-    #             page += 1
-    #
-    #         except Exception as error:
-    #             _logger.info('\n\n\n\n  Error Products on page=  %s \n\n\n\n' % (page) )
-    #             time.sleep(2)
-    #             continue
-    #
-    #         if products.status_code == 200:
-    #             if products.content:
-    #                 parsed_products = products.json()
-    #                 for product in parsed_products:
-    #                     yield product
-    #
-    #                 if len(parsed_products) < limit:
-    #                     get_next_page = False
-    #             else:
-    #                 get_next_page = False
-    #         else:
-    #             get_next_page = False
-    #
-    # def import_product(self, wooc_instance, is_force_update = False):
-    #     count = 0
-    #     ctx = dict(self.env.context)
-    #     for p_item in self.get_all_products(wooc_instance, limit=20):
-    #         count = count + 1
-    #         ''' To avoid duplications of products already having wooc_id. '''
-    #         # if p_item['id'] not in [2485, 2706,2507]:
-    #         existed_products = list(self.env.company.sudo().must_create_update_products.values())
-    #         if not is_force_update:
-    #             # existed_products_ids = self.env['product.template'].sudo().browse(existed_products)
-    #             exist = self.env['product.template'].sudo().search([('wooc_id', '=', p_item['id'])],limit=1)
-    #             # exist = self.env['product.template'].sudo().search([('wooc_id', '=', p_item['id'])],limit=1) + existed_products_ids
-    #             # _logger.error('existed_products///////////')
-    #             # _logger.error(existed_products)
-    #             # exist = self.env['product.template'].sudo().search([('wooc_id', 'in', existed_products)])
-    #             # exist = existed_products_ids
-    #             if exist:
-    #                 continue
-    #
-    #         _logger.info('\n\n\n  Importing Product =  %s -- %s \n\n' % (p_item['id'], p_item['name']) )
-    #         self.create_product( p_item, wooc_instance)
-    #     if ctx.get('from_corn', False):
-    #         self.env.company.sudo().must_create_update_products = {}
-    #         ctx['from_cron'] = False
-    #
     def set_product_status(self):
         ''' Enable or Disable Product'''
         woo_api = self.init_wc_api(self.woocomm_instance_id)
@@ -488,17 +389,11 @@ class Product(models.Model):
         for p_item in self.get_all_products(wooc_instance, limit=20):
             count = count + 1
             ''' To avoid duplications of products already having wooc_id. '''
-            # if p_item['id'] not in [2485, 2706,2507]:
             #existed_products = list(self.env.company.sudo().must_create_update_products.values())
             if not is_force_update:
                 # existed_products_ids = self.env['product.template'].sudo().browse(existed_products)
                 _logger.error(f'woocomm_instance_id.  == {wooc_instance.display_name}')
                 exist = self.env['product.template'].sudo().search([('wooc_id', '=', p_item['id']), ('woocomm_instance_id', '=', wooc_instance.id)],limit=1)
-                _logger.error(f'product.exist   {exist}')
-                # exist = self.env['product.template'].sudo().search([('wooc_id', '=', p_item['id'])],limit=1) + existed_products_ids
-                # _logger.error('existed_products///////////')
-                # exist = self.env['product.template'].sudo().search([('wooc_id', 'in', existed_products)])
-                # exist = existed_products_ids
 
                 if exist:
                     continue
@@ -509,7 +404,6 @@ class Product(models.Model):
 
     def create_product(self, p_item, wooc_instance):
         _logger.error(f'self env context =====> {self.env.context}   {self.env.context.get("dont_send_data_to_wooc_from_write_method")}')
-
         _logger.error(f'create_product  == {p_item["name"]}.   {wooc_instance.id}. {wooc_instance.display_name}')
 
         p_tags = []
@@ -752,10 +646,7 @@ class Product(models.Model):
                 _logger.info('\n\n\n\n  export_product=  %s \n\n\n\n' % (data) )
 
                 if product.wooc_id and product.is_exported:
-                    _logger.error('///||||||||||||||||||||||||||||||')
                     result = woo_api.put("products/%s" % int(product.wooc_id), data)
-                    _logger.error(f'///|||||||||||||||||||||||||||||| {result} {result.json()}   .json')
-
                     if result.status_code in [400, 404]:
                         result = woo_api.post("products", data)
                         # remove old variant_id if product not in woocommerce

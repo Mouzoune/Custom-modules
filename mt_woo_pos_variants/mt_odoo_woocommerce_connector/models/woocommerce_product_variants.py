@@ -16,11 +16,8 @@ _logger = logging.getLogger(__name__)
 from odoo.tools.float_utils import float_round
 
 
-
-
 class MFStockQuant(models.Model):
     _inherit = 'stock.quant'
-
 
     mf_show_product = fields.Boolean(string="Show Product", compute='_mf_show_product', store=True)
 
@@ -28,9 +25,6 @@ class MFStockQuant(models.Model):
     def _mf_show_product(self):
         for rec in self:
             rec.show_product = True
-#            rec.mf_show_product = True if (rec.product_id.product_tmpl_id.woocomm_variant_ids and rec.product_id.product_tmpl_id.wooc_id and rec.product_id.woocomm_variant_id) or (not rec.product_id.wooc_id and not rec.product_id.product_tmpl_id.wooc_id) else False
-#            if (not rec.product_id.product_tmpl_id.woocomm_variant_ids and rec.product_id.product_tmpl_id.product_variant_count>1):
-#                rec.mf_show_product = False
 
 
 class ProductTemplate(models.Model):
@@ -47,13 +41,10 @@ class ProductTemplate(models.Model):
             rec.woocomm_product_type = 'variable' if rec.product_variant_count > 1 else 'simple'
             rec.variant_count_product_type = ''
 
-
-
     # Be aware that the exact same function exists in product.product
     def action_open_quants(self):
         model_stock_location, model_stock_quant, action_open_quants = self.env['stock.location'], self.env['stock.quant'], self.product_variant_ids.filtered(lambda p: p.active)
-        _logger.error(self.woocomm_variant_ids)
-        _logger.error(not self.woocomm_variant_ids and self.product_variant_count > 1 and self.wooc_id)
+
         if not model_stock_quant.sudo().search([('product_id', 'in', action_open_quants.ids), ('product_id.woocomm_instance_id', '=', self.woocomm_instance_id.id)]):
             for location in model_stock_location.search([('usage', 'in', ['internal', 'transit'])]):
                 [model_stock_quant.create({'product_id': product.id, 'location_id': location.id}) for product in action_open_quants
@@ -73,14 +64,6 @@ class ProductTemplate(models.Model):
             return action_open_quants.action_open_quants()
 
         return super().action_open_quants()
-
-        # return action_open_quants.action_open_quants()
-
-
-#    @api.depends('product_variant_ids.sales_count', 'product_variant_ids.sales_counts')
-#    def _compute_sales_count(self):
-#        for product in self:
-#            product.sales_counts = product.sales_count = float_round(sum([p.sales_count for p in product.with_context(active_test=False).product_variant_ids]), precision_rounding=product.uom_id.rounding)
 
     def write(self, values):
         rtn = super().write(values)
@@ -121,17 +104,6 @@ class StockQuant(models.Model):
     product_wooc_id = fields.Char(string="Product WooCommerce ID", related='product_id.wooc_id', store=True)
     product_woocomm_variant_id = fields.Char(string="Product VAR WooCommerce ID", related='product_id.woocomm_variant_id', store=True)
 
-
-#    show_product = fields.Boolean(string="Show Product", compute='show_product', store=True)
-
-    
-#    @api.depends('product_id', 'product_id.wooc_id', 'product_id.product_tmpl_id.wooc_id')
-#    def show_product(self):
-#        for rec in self:
-#            rec.show_product = True
-#            rec.show_product = True if (rec.product_id.wooc_id and rec.product_id.product_tmpl_id.wooc_id) or (not rec.product_id.wooc_id and not rec.product_id.product_tmpl_id.wooc_id) else False
-
-
     @api.model
     def _unlink_zero_quants(self):
         """ _update_available_quantity may leave quants with no
@@ -152,8 +124,6 @@ class StockQuant(models.Model):
         # quant_ids.sudo().unlink()
 
     def init_wc_api(self, wooc_instance):
-        # wooc_instance = self.env['woocommerce.instance'].search([], limit=1, order='id desc')
-#        wooc_instance = self.woocomm_instance_id
         if wooc_instance.is_authenticated:
             try:
                 woo_api = API(
@@ -174,28 +144,17 @@ class StockQuant(models.Model):
 
     def write(self, values):
         super().write(values)
-#        _logger.error(values)
-#        _logger.error(self.location_id.id)
         if self.location_id.id == 8 and not self.env.context.get("dont_send_data_to_wooc_from_write_method") and self.product_id.wooc_id and (values.get('inventory_quantity_auto_apply', False) or values.get('inventory_quantity_auto_apply', '') == 0) or (self.product_id.wooc_id and (values.get('quantity', '') == 0 or values.get('quantity', False)) and self.location_id.id == 8):
-            #_logger.error(self.product_id.product_tmpl_id.variant_count_product_type)
-            #_logger.error(f'woocomm product type  = {self.product_id.product_tmpl_id.woocomm_product_type}')
             _logger.error(f'\n\n Quantity changed values {values}')
 
-            #_logger.error(f' {}')
             woocomm_instance_id = self.product_id.woocomm_instance_id if self.product_id.woocomm_instance_id else self.product_id.product_tmpl_id.woocomm_instance_id
             woo_api = self.init_wc_api(woocomm_instance_id)
             p_type = self.product_id.product_tmpl_id.woocomm_product_type
-            _logger.error(self.inventory_quantity_auto_apply)
-            _logger.error(self.quantity)
-
-#            _logger.error(abs(sum(self.search([('product_id', '=', self.product_id.id)]).mapped('quantity'))))
-#            _logger.error(abs(sum(self.search([('product_id', '=', self.product_id.id)]).mapped('inventory_quantity_auto_apply'))))
 
             var_quant_data = {
                 "stock_quantity": self.inventory_quantity_auto_apply,
                 "manage_stock": True
             }
-            #_logger.error(f'P type  = {p_type}')
 
             if p_type == "variable":
                 _logger.error(f'var_quant_data = {var_quant_data}')
@@ -206,8 +165,7 @@ class StockQuant(models.Model):
 
                 wooc_variant = self.env['woocommerce.product.variant'].sudo().search(
                     [('wooc_id', '=', self.product_id.woocomm_variant_id), ('product_template_id.woocomm_instance_id', '=', self.product_id.woocomm_instance_id.id)])
-                _logger.error('result == ')
-                _logger.error(result)
+
                 data = {"wooc_stock_quantity": result["stock_quantity"], "is_manage_stock": result["manage_stock"]}
                 if wooc_variant:
                     wooc_variant.write(data)
@@ -263,8 +221,6 @@ class WooCommerceProductVariants(models.Model):
             self.wooc_variations_update(self)
        
     def init_wc_api(self, wooc_instance):
-        # wooc_instance = self.env['woocommerce.instance'].search([], limit=1, order='id desc')
- #       wooc_instance = self.woocomm_instance_id
         if wooc_instance.is_authenticated:
             try:
                 woo_api = API(
@@ -292,9 +248,6 @@ class WooCommerceProductVariants(models.Model):
         if variant.file_name:
             with_image, src = True, f'{base_url}/web/image/woocommerce.product.variant/{variant.id}/wooc_variant_image/{variant.file_name}'
         woo_api = self.init_wc_api(product_tmpl.woocomm_instance_id)
-        _logger.error('variant.display_name')
-        _logger.error(f'variant.id ==>   {variant.display_name}')
-        _logger.error(variant.file_name)
 
         data = {
                 "sale_price": str(variant.wooc_sale_price),
@@ -313,19 +266,12 @@ class WooCommerceProductVariants(models.Model):
         if variant.wooc_sku:
             data['sku'] = variant.wooc_sku
         if with_image:
-            # src = f'{base_url}/web/image/woocommerce.product.variant/{variant.id}/wooc_variant_image/{variant.file_name}'
-            # _logger.error(src)
             data['image'] = {'src': src}
-        # if variant.file_name:
-        #     data.update({'image': {'src': f'{base_url}/web/image/{self._name}/{variant.id}/wooc_variant_image/{variant.file_name}'}})
         if not self.env.context.get("dont_send_data_to_wooc_from_write_method"):
             wc_variation = woo_api.post("products/%s/variations/%s"%(product_wooc_id,variation_id), data).json()
         else:
             wc_variation = woo_api.get("products/%s/variations/%s"%(product_wooc_id,variation_id)).json()
 
-            _logger.error(f'wc_variation ==>  {wc_variation}')
-        # if wc_variation.get('code') != 'woocommerce_variation_image_upload_error':
-            # _logger.error(wc_variation)
 
         product_variant_id = product_variant = self.env['product.product'].sudo().search([('product_tmpl_id', '=', product_tmpl.id), ('woocomm_variant_id', '=', variation_id), ('woocomm_instance_id', '=', self.woocomm_instance_id.id)])
         product_product_id.write({
@@ -349,30 +295,8 @@ class WooCommerceProductVariants(models.Model):
                      
                      })
         _logger.error(f'wc_variation stock_quantity. {wc_variation.get("stock_quantity", False)}')
-        # if wc_variation.get('stock_quantity', False):
-        #     stock_quantity = int(wc_variation.get('stock_quantity'))
-        #     stock_quant = self.env['stock.quant'].sudo().search([('product_id', '=', product_variant.id), ('location_id', '=', 8)], limit=1)
-        #     if not stock_quant:
-        #         stock_quant = self.env['stock.quant'].with_user(SUPERUSER_ID).sudo().with_context(inventory_mode=True).write({
-        #             'inventory_quantity': stock_quantity,
-        #             'quantity': stock_quantity,
-        #         })
-        #     else:
-        #         stock_quant.inventory_quantity = stock_quantity
 
-        #     stock_quant.action_apply_inventory()
-        #     product_variant.qty_available = stock_quantity
-
-        #     self.env['stock.quant'].with_context(inventory_mode=True).create({
-        #     'product_id': product.id,
-        #     'inventory_quantity': new_quantity,
-        #     'location_id': 8,
-        #     }).action_apply_inventory()
         stock_quantity = int(wc_variation.get('stock_quantity', '0'))
-
-        # _logger.error(f'wc_variation SUPERUSER_ID. {SUPERUSER_ID}')
-        # _logger.error(f'wc_variation product_variant. {product_variant}.  product_variant_id {variant.product_variant_id}')
-        # _logger.error(f'wc_variation product_tmpl. {product_tmpl}')
 
         if stock_quantity:
 
@@ -385,21 +309,4 @@ class WooCommerceProductVariants(models.Model):
         # User has no right on quant, must raise an AccessError
             inventory_wizard.change_product_qty()
 
-        # if wc_variation.get('stock_quantity', False):
-        #     stock_quant = self.env['stock.quant'].sudo().search([('product_id', '=', product_variant.id)])
-        #     _logger.error(f'stock_quant. {stock_quant}')
-        #     self.env['stock.quant'].with_user(SUPERUSER_ID).sudo().with_context(inventory_mode=True,).create({
-        #         'product_id': product_variant.id,
-        #         'inventory_quantity': int(wc_variation.get('stock_quantity', False)),
-        #         'location_id': 8,
-        #         }).action_apply_inventory()
-        #     stock_quant.inventory_quantity = stock_quant.quantity = product_variant.qty_available = int(wc_variation.get('stock_quantity', False))
-        #     stock_quant.action_apply_inventory()
-        #     # stock_quant.inventory_quantity = stock_quant.inventory_quantity_auto_apply = int(wc_variation.get('stock_quantity', False))
-        #     # product_variant.action_update_quantity_on_hand()
-        #     # self.env['stock.change.product.qty'].sudo().create({
-        #     #     'product_id': product_variant.id,
-        #     #     'product_tmpl_id': product_variant.product_tmpl_id.id,
-        #     #     'new_quantity': int(wc_variation.get('stock_quantity', False)),
-        #     # })
         self.env.cr.commit()
